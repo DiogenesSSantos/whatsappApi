@@ -2,28 +2,23 @@ package com.github.dio.messageira.service;
 
 import com.github.dio.messageira.controller.modeloRepresentacional.PacienteMR;
 import com.github.dio.messageira.listener.ListenerNovaMensagem;
-import it.auties.whatsapp.api.PairingCodeHandler;
 import it.auties.whatsapp.api.QrHandler;
 import it.auties.whatsapp.api.Whatsapp;
-import it.auties.whatsapp.api.WhatsappCustomBuilder;
 import it.auties.whatsapp.model.button.base.Button;
 import it.auties.whatsapp.model.button.base.ButtonBody;
 import it.auties.whatsapp.model.button.base.ButtonText;
-import it.auties.whatsapp.model.info.ChatMessageInfo;
-import it.auties.whatsapp.model.info.MessageIndexInfo;
 import it.auties.whatsapp.model.info.NativeFlowInfo;
 import it.auties.whatsapp.model.jid.Jid;
 import it.auties.whatsapp.model.message.button.ButtonsMessageBuilder;
 import it.auties.whatsapp.model.message.button.ButtonsMessageHeader;
 import it.auties.whatsapp.model.message.button.ButtonsMessageHeaderText;
-import it.auties.whatsapp.model.message.model.Message;
 import it.auties.whatsapp.model.message.model.MessageContainer;
 import it.auties.whatsapp.model.message.model.MessageContainerBuilder;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.HTMLDocument;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -100,8 +95,8 @@ public class WhatsappService {
 
         whatsappFuture.thenAccept(whatsapp -> {
 
-            whatsapp.addListener(new ListenerNovaMensagem(whatsapp, nomeUsuario , numero));
 
+                whatsapp.addListener(new ListenerNovaMensagem(whatsapp, nomeUsuario , numero));
 
             try {
                 if (!whatsapp.isConnected()) {
@@ -110,7 +105,9 @@ public class WhatsappService {
                 }
                 System.out.println("Enviando mensagem para: " + numero);
                 var contactJid = Jid.of(numero);
-                String mensagem = String.format(
+
+                String mensagemTest = "Test";
+                String mensagem1 = String.format(
                         "Boa tarde! Somos da SECRETARIA DE SAÚDE DE VITÓRIA DE SANTO ANTÃO. Venho, por meio desta mensagem, " +
                                 "informar sobre um comprovante de agendamento para:%n%n" +
                                 "Consulta: %S.%n" +
@@ -125,7 +122,7 @@ public class WhatsappService {
                                 "Agradeço a compreensão.",
                         tipoConsulta,nomeUsuario
                 );
-                whatsapp.sendMessage(contactJid, mensagem).thenRun(() -> {
+                whatsapp.sendMessage(contactJid, mensagemTest).thenRun(() -> {
                     System.out.println("Mensagem enviada para: " + numero);
                 }).exceptionally(ex -> {
                     System.err.println("Erro ao enviar mensagem: " + ex.getMessage());
