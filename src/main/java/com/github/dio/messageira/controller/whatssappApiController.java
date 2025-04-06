@@ -5,42 +5,35 @@ import com.github.dio.messageira.controller.modeloRepresentacional.PacienteMR;
 import com.github.dio.messageira.core.openapi.model.WhatsappDocumentationOpenAPI;
 import com.github.dio.messageira.service.WhatsappService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
-@RestController
-@RequestMapping(value = "/api/zap" , produces = MediaType.APPLICATION_JSON_VALUE)
+
 public class whatssappApiController extends WhatsappDocumentationOpenAPI {
 
     @Autowired
-    private WhatsappService service;
+    private  WhatsappService service;
 
 
-    @GetMapping("/")
+    @Override
     public String home() {
-        return "index";
+        return "";
     }
 
-
-    @PostMapping("/enviarList")
-    public void enviarMensagem(@RequestBody List<PacienteMR> pacienteMR) {
+    @Override
+    public void enviarMensagem(List<PacienteMR> pacienteMR) {
         service.enviarMensagemLista(pacienteMR);
     }
 
-    @DeleteMapping("/desconectar")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Override
     public void desconectarWhatsApp() {
         service.desconectar();
     }
 
-    @PutMapping("/reconectar")
-    @ResponseStatus(HttpStatus.OK)
+    @Override
     public void reconectarWhatsApp() {
         service.conectar();
     }
-
 }
