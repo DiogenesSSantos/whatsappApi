@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
         statusMensagemDiv.textContent = "Enviando...";
         enviarBtn.disabled = true;
 
-        axios.post('https://api.devdiogenes.shop/api/zap/enviarList', destinatarios, {
+        axios.post('http://devdiogenes.shop/api/zap/enviarList', destinatarios, {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -107,4 +107,37 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById("telefone").value = "";
     }
 });
+
+// Estabelecendo a conexão WebSocket
+const socket = new WebSocket("ws://api.devdiogenes.shop/ws"); // Substitua pela URL do seu WebSocket
+
+socket.onopen = () => {
+    console.log("Conexão WebSocket estabelecida para monitorar a página Painel de Mensagens.");
+};
+
+socket.onclose = () => {
+    console.log("WebSocket desconectado. Usuário saiu da página ou fechou o navegador.");
+};
+
+socket.onerror = (error) => {
+    console.error("Erro no WebSocket:", error);
+};
+
+// Evento opcional: você pode enviar uma mensagem para o servidor indicando que o cliente entrou na página.
+function registrarEntradaPagina() {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send("Usuário acessou a página Painel de Mensagens.");
+    }
+}
+
+// Registrar quando a página carregar
+window.onload = registrarEntradaPagina;
+
+// Fechar o WebSocket ao sair da página ou fechar o navegador
+window.onbeforeunload = () => {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.close();
+    }
+};
+
 

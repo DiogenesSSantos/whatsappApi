@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  selector:
+    matchLabels:
+      app: api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api-container
+          image: diogenesssantos/apiwhatsapp:9.0
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://69.62.97.76:3306/apiwhatsapp?createDatabaseIfNotExist=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "Dioge1997"
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: "com.mysql.cj.jdbc.Driver"
+          ports:
+            - containerPort: 8080

@@ -118,88 +118,171 @@
         .pdf-button:hover {
             background-color: #004d00;
         }
+
+         .search-section {
+            display: flex;
+            justify-content: space-between; /* Espaçamento entre os botões e entradas */
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Permite quebra de linha, caso o espaço seja insuficiente */
+        }
+        .search-section input, .search-section button {
+            flex: 1; /* Ajusta para um layout mais responsivo */
+            margin: 5px; /* Espaço entre os elementos */
+            min-width: 100px; /* Evita que os inputs fiquem muito pequenos */
+        }
+
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Paciente Marcados Status</h1>
-        <div class="search-section">
-            <input type="text" id="searchInput" placeholder="Digite o filtro...">
-            <button onclick="fetchData()">Buscar</button>
-            <button class="pdf-button" onclick="downloadPdf()">Baixar PDF</button>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Numero Telefone</th>
-                    <th>Bairro</th>
-                    <th>Procedimento</th>
-                    <th>Data Consulta</th>
-                    <th>Motivo</th>
-                </tr>
-            </thead>
-            <tbody id="pacienteTableBody">
-            </tbody>
-        </table>
+<div class="container">
+    <h1>Paciente Marcados Status</h1>
+    <div class="search-section">
+        <input type="text" id="nomeInput" placeholder="Nome">
+        <input type="text" id="bairroInput" placeholder="Bairro">
+        <input type="date" id="dataInicialInput" placeholder="Data Inicial">
+        <input type="date" id="dataFinalInput" placeholder="Data Final">
+        <input type="text" id="consultaInput" placeholder="Tipo de Consulta">
+        <input type="text" id="motivoInput" placeholder="Motivo">
+        <button onclick="fetchData()">Buscar</button>
+        <button class="pdf-button" onclick="downloadPdf()">Baixar PDF</button>
     </div>
-    <script>
-        function fetchData() {
-            const searchInput = document.getElementById('searchInput').value;
-            
-            fetch('https://api.devdiogenes.shop/api/estaticas?filtro=' + searchInput)
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById('pacienteTableBody');
-                    tableBody.innerHTML = '';
 
-                    data.forEach(paciente => {
-                        const row = document.createElement('tr');
+    <table>
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Numero Telefone</th>
+            <th>Bairro</th>
+            <th>Procedimento</th>
+            <th>Data Consulta</th>
+            <th>Motivo</th>
+        </tr>
+        </thead>
+        <tbody id="pacienteTableBody">
+        </tbody>
+    </table>
+</div>
+<script>
+    function fetchData() {
+const nome = document.getElementById('nomeInput').value.trim();
+const bairro = document.getElementById('bairroInput').value.trim();
+let dataMarcacaoInicial = document.getElementById('dataInicialInput').value.trim();
+let dataMarcacaoFinal = document.getElementById('dataFinalInput').value.trim();
+const consulta = document.getElementById('consultaInput').value.trim();
+const motivo = document.getElementById('motivoInput').value.trim();
 
-                        const nomeColunaCell = document.createElement('td');
-                        nomeColunaCell.textContent = paciente.nome;
-                        row.appendChild(nomeColunaCell);
+// Formatar as datas para o formato dd/MM/yyyy
+if (dataMarcacaoInicial) {
+    const [ano, mes, dia] = dataMarcacaoInicial.split("-");
+    dataMarcacaoInicial = `${dia}/${mes}/${ano}`;
+}
+if (dataMarcacaoFinal) {
+    const [ano, mes, dia] = dataMarcacaoFinal.split("-");
+    dataMarcacaoFinal = `${dia}/${mes}/${ano}`;
+}
 
-                        const numeroCell = document.createElement('td');
-                        numeroCell.textContent = paciente.numero;
-                        row.appendChild(numeroCell);
+// Construir a URL com os filtros
+let url = 'http://devdiogenes.shop/api/estatisticas?';
+if (nome) url += `nome=${encodeURIComponent(nome)}&`;
+if (bairro) url += `bairro=${encodeURIComponent(bairro)}&`;
+if (dataMarcacaoInicial) url += `dataMarcacaoInicial=${encodeURIComponent(dataMarcacaoInicial)}&`;
+if (dataMarcacaoFinal) url += `dataMarcacaoFinal=${encodeURIComponent(dataMarcacaoFinal)}&`;
+if (consulta) url += `consulta=${encodeURIComponent(consulta)}&`;
+if (motivo) url += `motivo=${encodeURIComponent(motivo)}&`;
 
-                        const bairroCell = document.createElement('td');
-                        bairroCell.textContent = paciente.bairro;
-                        row.appendChild(bairroCell);
+// Remover o último "&" da URL, caso exista
+url = url.endsWith("&") ? url.slice(0, -1) : url;
 
-                        const consultaCell = document.createElement('td');
-                        consultaCell.textContent = paciente.consulta;
-                        row.appendChild(consultaCell);
+console.log("URL gerada para requisição:", url); // Debug
 
-                        const dataCell = document.createElement('td');
-                        dataCell.textContent = paciente.data;
-                        row.appendChild(dataCell);
-
-                        const motivoCell = document.createElement('td');
-                        motivoCell.textContent = paciente.motivo;
-                        row.appendChild(motivoCell);
-
-                        if (paciente.motivo === "ACEITO") {
-                            motivoCell.classList.add('aceito');
-                        } else if (paciente.motivo === "AGUARDANDO") {
-                            motivoCell.classList.add('outro-aguardando');
-                        } else {
-                            motivoCell.classList.add('outro-motivo');
-                        }
-
-                        tableBody.appendChild(row);
-                    });
-                })
-                .catch(error => console.error('Erro ao buscar dados:', error));
+fetch(url)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro HTTP! status: ${response.status}`);
         }
+        return response.json();
+    })
+    .then(data => {
+        const tableBody = document.getElementById('pacienteTableBody');
+        tableBody.innerHTML = '';
 
-        function downloadPdf() {
-            const searchInput = document.getElementById('searchInput').value;
-            const url = 'https://api.devdiogenes.shop/api/estaticas/pdf?filtro=' + searchInput;
-            window.open(url, '_blank');
-        }
-    </script>
+        data.forEach(paciente => {
+            const row = document.createElement('tr');
+
+            const nomeColunaCell = document.createElement('td');
+            nomeColunaCell.textContent = paciente.nome;
+            row.appendChild(nomeColunaCell);
+
+            const numeroCell = document.createElement('td');
+            numeroCell.textContent = paciente.numero;
+            row.appendChild(numeroCell);
+
+            const bairroCell = document.createElement('td');
+            bairroCell.textContent = paciente.bairro;
+            row.appendChild(bairroCell);
+
+            const consultaCell = document.createElement('td');
+            consultaCell.textContent = paciente.consulta;
+            row.appendChild(consultaCell);
+
+            const dataCell = document.createElement('td');
+            dataCell.textContent = paciente.dataConsulta;
+            row.appendChild(dataCell);
+
+            const motivoCell = document.createElement('td');
+            motivoCell.textContent = paciente.motivo;
+            row.appendChild(motivoCell);
+
+            if (paciente.motivo === "ACEITO") {
+                motivoCell.classList.add('aceito');
+            } else if (paciente.motivo === "AGUARDANDO") {
+                motivoCell.classList.add('outro-aguardando');
+            } else {
+                motivoCell.classList.add('outro-motivo');
+            }
+
+            tableBody.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Erro ao buscar dados:', error));
+}
+function downloadPdf() {
+const nome = document.getElementById('nomeInput').value.trim();
+const bairro = document.getElementById('bairroInput').value.trim();
+let dataMarcacaoInicial = document.getElementById('dataInicialInput').value.trim();
+let dataMarcacaoFinal = document.getElementById('dataFinalInput').value.trim();
+const consulta = document.getElementById('consultaInput').value.trim();
+const motivo = document.getElementById('motivoInput').value.trim();
+
+// Formatar as datas para o formato dd/MM/yyyy
+if (dataMarcacaoInicial) {
+    const [ano, mes, dia] = dataMarcacaoInicial.split("-");
+    dataMarcacaoInicial = `${dia}/${mes}/${ano}`;
+}
+if (dataMarcacaoFinal) {
+    const [ano, mes, dia] = dataMarcacaoFinal.split("-");
+    dataMarcacaoFinal = `${dia}/${mes}/${ano}`;
+}
+
+// Construir a URL com os filtros
+let url = 'http://devdiogenes.shop/api/estatisticas/pdf?';
+if (nome) url += `nome=${encodeURIComponent(nome)}&`;
+if (bairro) url += `bairro=${encodeURIComponent(bairro)}&`;
+if (dataMarcacaoInicial) url += `dataMarcacaoInicial=${encodeURIComponent(dataMarcacaoInicial)}&`;
+if (dataMarcacaoFinal) url += `dataMarcacaoFinal=${encodeURIComponent(dataMarcacaoFinal)}&`;
+if (consulta) url += `consulta=${encodeURIComponent(consulta)}&`;
+if (motivo) url += `motivo=${encodeURIComponent(motivo)}&`;
+
+url = url.endsWith("&") ? url.slice(0, -1) : url;
+
+console.log("URL gerada para PDF:", url); // Debug
+
+window.open(url, '_blank');
+}
+
+</script>
 </body>
 </html>
 

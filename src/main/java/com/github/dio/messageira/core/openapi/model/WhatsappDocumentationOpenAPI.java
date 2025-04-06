@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-@Tag(name = "ESTOU USANDO CLASSE ABSTRATA PARA DOCUMENTAR", description = "FODASSE")
+@Tag(name = "WhatsApp-api documentação",
+        description = "Leia com atenção os detalhes qualquer duvida entre em contato com desenvolvedor")
 public abstract class WhatsappDocumentationOpenAPI {
 
     @ApiResponses(value = {
@@ -23,16 +24,16 @@ public abstract class WhatsappDocumentationOpenAPI {
     public abstract String home();
 
     @Operation(summary = "Envia a lista de numeros",
-            description = "Front end manda requisão para o endpoints para enviar mensagem")
-    public abstract void enviarParaLista(@RequestBody(required = true, description = "CORPO JSON DA REQUISIÇÃO ") List<PacienteMR> pacienteMR);
+            description = "Front end manda requisição com os numeros do pacientes e sua especialidade de consulta")
+    public abstract void enviarMensagem(@RequestBody(required = true, description = "CORPO JSON DA REQUISIÇÃO ") List<PacienteMR> pacienteMR);
 
-    @Operation(summary = "Desconectar a instancia", description = "Desconecta a instancia do whatsapp, " +
+    @Operation(summary = "Desconectar o whatsapp sessão", description = "Depois do desconecte deve usar o reconectar método para uma nova instancia do wahtsapp" +
             "em seguida voce deve usar o método reconectar para obter uma nova QrCode de conexão")
-    public abstract void desconectar();
+    public abstract void desconectarWhatsApp();
 
-    @Operation(summary = "Reconecta whatsapp na aplicação", description = "Depois de reconecta usario deve" +
-            " chamar endpoints do QrCode")
-    public abstract void reconectar();
+    @Operation(summary = "Reconecta whatsapp na aplicação", description = "Depois de reconecta usuário deve" +
+            " chamar o endpoints do QrCode (Mude selection para QRcode e faça conexão no endpoints)")
+    public abstract void reconectarWhatsApp();
 
 
 }

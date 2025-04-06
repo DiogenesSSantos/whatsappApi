@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api
+spec:
+  containers:
+    - name: api-container
+      image: diogenesssantos/apiwhatsapp:1.0
+      env:
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:mysql://172.18.0.3:3306/apiwhatsapp?createDatabaseIfNotExist=true"
+          - name: SPRING_DATASOURCE_USERNAME
+            value: "root"
+          - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+            value: "com.mysql.cj.jdbc.Driver"
+
+      ports:
+        - containerPort: 8080

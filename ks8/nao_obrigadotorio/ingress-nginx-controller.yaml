@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"controller","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"name":"ingress-nginx-controller","namespace":"ingress-nginx"},"spec":{"ipFamilies":["IPv4"],"ipFamilyPolicy":"SingleStack","ports":[{"appProtocol":"http","name":"http","port":80,"protocol":"TCP","targetPort":"http"},{"appProtocol":"https","name":"https","port":443,"protocol":"TCP","targetPort":"https"}],"selector":{"app.kubernetes.io/component":"controller","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/name":"ingress-nginx"},"type":"NodePort"}}
+  creationTimestamp: "2025-03-26T23:54:49Z"
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+  resourceVersion: "40466"
+  uid: c9f76037-1efb-40b7-a63d-df208677c977
+spec:
+  clusterIP: 10.102.55.78
+  clusterIPs:
+  - 10.102.55.78
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - appProtocol: http
+    name: http
+    nodePort: 31791
+    port: 80
+    protocol: TCP
+    targetPort: http
+  - appProtocol: https
+    name: https
+    nodePort: 31829
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}

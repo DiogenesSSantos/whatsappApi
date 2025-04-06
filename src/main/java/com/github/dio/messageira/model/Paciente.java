@@ -39,7 +39,7 @@ public class Paciente implements Comparable<Paciente> {
     private String dataConsulta;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private LocalDateTime dataMarcacao;
+    private LocalDateTime dataMarcacao = LocalDateTime.now();
     private String motivo;
 
 

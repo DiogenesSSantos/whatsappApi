@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/affinity: "cookie" # Balanceamento de afinidade com cookie
+    nginx.ingress.kubernetes.io/session-cookie-name: "device-session"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
+    nginx.ingress.kubernetes.io/session-cookie-path: "/" # Caminho onde o cookie é aplicado
+    nginx.ingress.kubernetes.io/session-cookie-expires: "86400"  # Tempo de vida do cookie em segundos (1 dia)
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "86400" # Tempo máximo de validade do cookie
+
+    nginx.ingress.kubernetes.io/limit-connections: "10"
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+
+    nginx.ingress.kubernetes.io/upstream-hash-by: "cookie_unique-session"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "5"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-next-upstream: "error timeout"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: "5s"
+    nginx.ingress.kubernetes.io/proxy-next-upstream-tries: "3"
+spec:
+  rules:
+    - host: api.devdiogenes.shop
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-service
+                port:
+                  number: 80

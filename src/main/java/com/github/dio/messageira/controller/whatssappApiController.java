@@ -25,20 +25,21 @@ public class whatssappApiController extends WhatsappDocumentationOpenAPI {
         return "index";
     }
 
+
     @PostMapping("/enviarList")
-    public void enviarParaLista(@RequestBody List<PacienteMR> pacienteMR) {
+    public void enviarMensagem(@RequestBody List<PacienteMR> pacienteMR) {
         service.enviarMensagemLista(pacienteMR);
     }
 
     @DeleteMapping("/desconectar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void desconectar() {
+    public void desconectarWhatsApp() {
         service.desconectar();
     }
 
     @PutMapping("/reconectar")
     @ResponseStatus(HttpStatus.OK)
-    public void reconectar() {
+    public void reconectarWhatsApp() {
         service.conectar();
     }
 

@@ -25,11 +25,14 @@ public class OpenAPIDocumentConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info().title("API-WHATSAPP")
-                        .description("API PARA USO CONSUMIDOR")
-                        .version("2.0.2")
-                        .contact(new Contact().url("AAAAAAAAA").name("diogees").email("Diobotnex"))
-                        .summary("ALGUMA COISA")
-                        .license(new License().name("DIOTARIA").url("https://www.youtube.com/watch?v=mCZG6nRX-MQ")));
+                        .description("Criada para auxiliar o contato com os pacientes sobre consulta e exames.\n" +
+                                "Front-end LuanaMoreiran.\n"+
+                                "Back-end DiogenesSantos.\n"+
+                                "Abaixo link para repositório GIT aonde tem os respectivos Linkedin para contato.")
+                        .version("1.0")
+                        .contact(new Contact().url("https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile")
+                                .name("Diogenes").email("diogenescontatoofficial@hotmail.com"))
+                        .license(new License().name("").url("https://www.youtube.com/watch?v=AlA0A6OT1NA")));
 
 
     }

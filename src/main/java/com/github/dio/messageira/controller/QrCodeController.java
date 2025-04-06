@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-
 @RestController
 @RequestMapping("/api/conexao")
 public class QrCodeController {

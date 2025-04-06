@@ -12,6 +12,10 @@ import it.auties.whatsapp.model.message.standard.TextMessage;
 import lombok.SneakyThrows;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,7 +31,7 @@ public class ListenerNovaMensagem implements Listener {
 
 
     public ListenerNovaMensagem(String numeroUsuario, PacienteRepository pacienteRepository, Paciente paciente) {
-        encapsuladoPaciente = new EncapsuladoPaciente(numeroUsuario , paciente.getCodigo(), paciente);
+        encapsuladoPaciente = new EncapsuladoPaciente(numeroUsuario, paciente.getCodigo(), paciente);
         filaService = new FIlaService(pacienteRepository);
     }
 
@@ -63,7 +67,7 @@ public class ListenerNovaMensagem implements Listener {
 
             String motivo = mensagemUsuario;
             if (motivo.matches("[a-zA-Z0-9 À-ÿ.,!?]+")) {
-                whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), String.format("MOTIVO : %S.%n%nMuito obrigado, o encaminhamento será arquivado e removido da fila.", motivo));
+                whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), String.format("MOTIVO DA SUA DESISTÊNCIA: %S.%n%nMuito obrigado, o encaminhamento será arquivado e removido da fila.", motivo));
                 encapsuladoPaciente.setMotivoDesistencia(false);
                 whatsapp.removeListener(this);
 
@@ -86,21 +90,37 @@ public class ListenerNovaMensagem implements Listener {
 
 
         if (mensagemUsuario.equalsIgnoreCase("sim") || mensagemUsuario.equalsIgnoreCase("s")) {
-            whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), String.format("Olá %S, " +
-                    "Estamos felizes em saber que você tem interesse na consulta/exame: %S.%nEstá marcado.%n%n" +
-                    "Compareça AMANHÃ entre 08:00 as 14:00 com cartão SUS no setor de regulação da Secretaria de Saúde de vitória de santo antão.%n%n" +
-                    "A data da consulta/exame só estará disponível no momento da entrega do seu comprovante de agendamento.%n%n" +
-                    "Aguardamos sua presença.%n" +
-                    "Atenciosamente, Regulação de Saúde.", encapsuladoPaciente.getPaciente().getNome(),
-                    encapsuladoPaciente.getPaciente().getConsulta()));
-            whatsapp.removeListener(this);
+            if (isFinalSemana()) {
+                whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), String.format("Olá %S, " +
+                                "Estamos felizes em saber que você tem interesse na consulta/exame: %S.%nEstá marcado.%n%n" +
+                                "Compareça SEGUNDA-FEIRA entre o horário 08:00 as 14:00 com cartão SUS no setor de regulação da Secretaria de Saúde de vitória de santo antão.%n%n" +
+                                "A data da consulta/exame só estará disponível no momento da entrega do seu comprovante de agendamento.%n%n" +
+                                "Aguardamos sua presença.%n" +
+                                "Atenciosamente, Regulação de Saúde.", encapsuladoPaciente.getPaciente().getNome(),
+                        encapsuladoPaciente.getPaciente().getConsulta()));
+                whatsapp.removeListener(this);
 
 
-            if (!uuidUnicoUsuarioSet.contains(encapsuladoPaciente.getUuidUnicoUsuario())) {
-                uuidUnicoUsuarioSet.add(encapsuladoPaciente.getUuidUnicoUsuario());
-                filaService.excutarPersistencia("ACEITO", encapsuladoPaciente.getPaciente());
+                if (!uuidUnicoUsuarioSet.contains(encapsuladoPaciente.getUuidUnicoUsuario())) {
+                    uuidUnicoUsuarioSet.add(encapsuladoPaciente.getUuidUnicoUsuario());
+                    filaService.excutarPersistencia("ACEITO", encapsuladoPaciente.getPaciente());
+                }
+
+
+            } else {
+                whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), String.format("Olá %S, " +
+                                "Estamos felizes em saber que você tem interesse na consulta/exame: %S.%nEstá marcado.%n%n" +
+                                "Compareça AMANHÃ entre o horário 08:00 as 14:00 com cartão SUS no setor de regulação da Secretaria de Saúde de Vitória de Santo Antão.%n%n" +
+                                "A data da consulta/exame só estará disponível no momento da entrega do seu comprovante de agendamento.%n%n" +
+                                "Aguardamos sua presença.%n" +
+                                "Atenciosamente, Regulação de Saúde.", encapsuladoPaciente.getPaciente().getNome(),
+                        encapsuladoPaciente.getPaciente().getConsulta()));
+                whatsapp.removeListener(this);
+                if (!uuidUnicoUsuarioSet.contains(encapsuladoPaciente.getUuidUnicoUsuario())) {
+                    uuidUnicoUsuarioSet.add(encapsuladoPaciente.getUuidUnicoUsuario());
+                    filaService.excutarPersistencia("ACEITO", encapsuladoPaciente.getPaciente());
+                }
             }
-
         }
 
 
@@ -108,17 +128,26 @@ public class ListenerNovaMensagem implements Listener {
                 || mensagemUsuario.equalsIgnoreCase("não")
                 || mensagemUsuario.equalsIgnoreCase("naõ")
                 || mensagemUsuario.equalsIgnoreCase("ñ")) {
-            whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), "Coloque o motivo da desistência abaixo : ");
+            whatsapp.sendMessage(Jid.of(encapsuladoPaciente.getNumeroUsuario()), "Coloque o motivo da desistência abaixo...");
             encapsuladoPaciente.setMotivoDesistencia(true);
         }
 
     }
 
+
+    private static boolean isFinalSemana() {
+        LocalDate data = LocalDate.now(ZoneId.of("America/Recife"));
+
+        if (data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SATURDAY.toString()) ||
+                data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SUNDAY.toString())) {
+            return true;
+        }
+
+        return false;
+    }
+
+
 }
-
-
-
-
 
 
 class EncapsuladoPaciente {
@@ -128,8 +157,8 @@ class EncapsuladoPaciente {
     private Paciente paciente;
 
 
-    public EncapsuladoPaciente(String numeroUsuario,String uuidUnicoUsuario, Paciente paciente) {
-        this.numeroUsuario = "+"+numeroUsuario;
+    public EncapsuladoPaciente(String numeroUsuario, String uuidUnicoUsuario, Paciente paciente) {
+        this.numeroUsuario = "+" + numeroUsuario;
         this.uuidUnicoUsuario = uuidUnicoUsuario;
         this.paciente = paciente;
     }
