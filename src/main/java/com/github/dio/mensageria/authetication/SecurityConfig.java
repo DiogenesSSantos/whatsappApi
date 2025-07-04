@@ -27,8 +27,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/apidocs/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/zap/enviarList").authenticated()
-                        .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/zap/enviarList").permitAll()
+                        .anyRequest().permitAll()
                 ).csrf(csrf -> csrf.disable())
                 .formLogin(httpSecurityFormLoginConfigurer ->
                         httpSecurityFormLoginConfigurer.defaultSuccessUrl("/" , true));

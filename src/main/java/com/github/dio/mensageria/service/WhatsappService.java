@@ -73,6 +73,8 @@ public class WhatsappService {
     private Boolean isDisconnecting = true;
     private PacienteRepository pacienteRepository;
 
+    @Autowired
+    private N8NService n8NService;
 
     /**
      * Inicialização do  Whatsapp service.
@@ -245,9 +247,9 @@ public class WhatsappService {
                     PacienteEncapsuladoNaoRespondido pacienteNaoRespondido = new PacienteEncapsuladoNaoRespondido(pacientePersistido, contactJid);
                     pacienteList.add(pacienteNaoRespondido);
 
-                    var listener = new ListenerNovaMensagem(numero, pacienteRepository, pacientePersistido, queue, pacienteNaoRespondido, filaService);
-                    queue.add(listener);
-                    whatsapp.addListener(listener);
+//                    var listener = new ListenerNovaMensagem(numero, pacienteRepository, pacientePersistido, queue, pacienteNaoRespondido, filaService);
+//                    queue.add(listener);
+//                    whatsapp.addListener(listener);
 
 
                     if (!whatsapp.isConnected()) {
@@ -268,14 +270,23 @@ public class WhatsappService {
                             pacienteMR.getNome(), pacienteMR.getConsulta());
 
 
-                    whatsapp.sendMessage(contactJid, mensagem).thenRun(() -> {
-                        System.out.println("Mensagem enviada para: " + numero);
+                        n8NService.enviarPayload(pacienteMR.getNome() , numero , mensagem);
 
-                    }).exceptionally(ex -> {
-                        log.warn("Erro ao enviar mensagem: " + ex.getMessage());
-                        ex.printStackTrace();
-                        return null;
-                    });
+
+//                    whatsapp.sendMessage(contactJid, mensagem).thenRun(() -> {
+//                        System.out.println("Mensagem enviada para: " + numero);
+//
+//                    }).exceptionally(ex -> {
+//                        log.warn("Erro ao enviar mensagem: " + ex.getMessage());
+//                        ex.printStackTrace();
+//                        return null;
+//                    });
+
+
+
+
+
+
                 } else {
                     salvandoNaoPossuiWhatsapp(pacienteMR);
                 }
