@@ -20,13 +20,15 @@ public class N8NService {
         this.restTemplate = restTemplate;
     }
 
-    public ResponseEntity<?> enviarPayload(String nomeCliente , String numero, String mensagem) {
+    public ResponseEntity<?> enviarPayload(String idCLiente ,String nomeCliente , String numero, String mensagem) {
         log.warn("ENVIANDO MENSAGEM PARA N8N");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
 
         Map<String , Object> jsonCorpo = Map.of(
+
+                "id_cliente", idCLiente,
                 "nome", nomeCliente,
                 "telefones", numero,
                 "mensagem", mensagem

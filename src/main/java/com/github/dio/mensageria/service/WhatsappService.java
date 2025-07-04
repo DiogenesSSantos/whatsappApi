@@ -240,24 +240,21 @@ public class WhatsappService {
     private void enviandoMensagemTexto(PacienteMR pacienteMR, String numero) {
 
         whatsappFuture.thenAccept(whatsapp -> {
+
+            if (!whatsapp.isConnected()) {
+                System.err.println("O WhatsApp não está conectado.");
+                return;
+            }
+
             try {
                 var contactJid = Jid.of(numero);
                 if (whatsapp.hasWhatsapp(contactJid).get()) {
                     var pacientePersistido = salvandoIncialmenteAguardando(pacienteMR);
+
                     PacienteEncapsuladoNaoRespondido pacienteNaoRespondido = new PacienteEncapsuladoNaoRespondido(pacientePersistido, contactJid);
                     pacienteList.add(pacienteNaoRespondido);
 
-//                    var listener = new ListenerNovaMensagem(numero, pacienteRepository, pacientePersistido, queue, pacienteNaoRespondido, filaService);
-//                    queue.add(listener);
-//                    whatsapp.addListener(listener);
-
-
-                    if (!whatsapp.isConnected()) {
-                        System.err.println("O WhatsApp não está conectado.");
-                        return;
-                    }
                     System.out.println("Enviando mensagem para: " + numero);
-
 
                     String mensagem = String.format(
                             "Olá %S!%n%n" +
@@ -269,23 +266,7 @@ public class WhatsappService {
                                     "Regulação de Saúde.",
                             pacienteMR.getNome(), pacienteMR.getConsulta());
 
-
-                        n8NService.enviarPayload(pacienteMR.getNome() , numero , mensagem);
-
-
-//                    whatsapp.sendMessage(contactJid, mensagem).thenRun(() -> {
-//                        System.out.println("Mensagem enviada para: " + numero);
-//
-//                    }).exceptionally(ex -> {
-//                        log.warn("Erro ao enviar mensagem: " + ex.getMessage());
-//                        ex.printStackTrace();
-//                        return null;
-//                    });
-
-
-
-
-
+                        n8NService.enviarPayload(String.valueOf(pacientePersistido.getId()),pacienteMR.getNome() , numero , mensagem);
 
                 } else {
                     salvandoNaoPossuiWhatsapp(pacienteMR);
@@ -294,6 +275,8 @@ public class WhatsappService {
                 log.warn("Erro ao enviar mensagem: " + e.getMessage());
                 e.printStackTrace();
             }
+
+
         }).exceptionally(ex -> {
             log.warn("Falha ao obter a instância do WhatsApp: " + ex.getMessage());
             return null;
