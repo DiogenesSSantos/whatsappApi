@@ -33,7 +33,7 @@ import java.util.concurrent.*;
  *  instãncia do {@link Whatsapp}, além de enviar mensagem.
  * @author diogenesssantos.
  */
-@Service
+
 public class WhatsappService {
 
     private static final Logger log = LoggerFactory.getLogger(com.github.dio.mensageria.service.WhatsappService.class);
@@ -299,7 +299,7 @@ public class WhatsappService {
 
         if (!pacienteSetStringUUID.contains(pacienteMR.getId().toString())) {
             pacienteBdExiste.setMotivo(paciente.getMotivo());
-            pacienteBdExiste.setNumero(paciente.getNumero());
+            pacienteBdExiste.setNumero(null);
             pacienteSetStringUUID.add(pacienteMR.getId().toString());
             return pacienteRepository.save(pacienteBdExiste);
         }
@@ -319,6 +319,7 @@ public class WhatsappService {
 
     private void salvandoNaoRespondido(Paciente paciente) {
         var pacienteExiste = pacienteRepository.findBycodigo(paciente.getId().toString());
+
         if (pacienteExiste == null) {
             paciente.setMotivo("NAO_RESPONDIDO");
             pacienteRepository.save(paciente);

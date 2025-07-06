@@ -61,4 +61,11 @@ public class PacienteEncapsuladoNaoRespondido  {
     }
 
 
+    @Override
+    public String toString() {
+        return "PacienteEncapsuladoNaoRespondido{" +
+                "paciente=" + paciente +
+                ", numero=" + numero +
+                '}';
+    }
 }

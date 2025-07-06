@@ -14,11 +14,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class N8NService {
-    private static final String MSN_PADRAO_FINAL_DE_SEMANA =String.format(new StringBuilder()
+    private static final String MSN_PADRAO_FINAL_DE_SEMANA = String.format(new StringBuilder()
             .append("*Retirada de Comprovante de Agendamento*%n%n")
             .append("📌 *Atenção:* esta mensagem é apenas para retirada do seu comprovante na Secretaria Municipal de Saúde de Vitória de Santo Antão.%n")
             .append("📝 A data e o horário da sua consulta/exame só estarão disponíveis no comprovante impresso.%n%n")
@@ -42,7 +41,7 @@ public class N8NService {
 
 
     private static final String URL_N8N = "https://n8n.devdiogenes.shop/webhook/api-java";
-    private static final String URL_N8N_RESPOSTA = "https://n8n.devdiogenes.shop/webhook-test/api-java-resposta";
+    private static final String URL_N8N_RESPOSTA = "https://n8n.devdiogenes.shop/webhook/api-java-resposta";
     private static final Logger log = LoggerFactory.getLogger(N8NService.class);
     private final RestTemplate restTemplate;
 
@@ -53,8 +52,6 @@ public class N8NService {
     public N8NService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-
-
 
 
     public ResponseEntity<?> enviarPayload(String idCLiente, String nomePaciente, String numero, String mensagem) {
@@ -80,6 +77,20 @@ public class N8NService {
 
     public ResponseEntity<?> resposta(Long id, String numero, String respostaPacinete) {
         System.out.println("RESPOSTA DO N8N");
+        var pacienteOptional = pacienteRepository.findById(id);
+
+        if (pacienteOptional.isPresent()) {
+            Paciente pacienteBD = pacienteOptional.get();
+
+            persistindoDados(respostaPacinete , pacienteBD);
+
+            synchronized (WhatsappServiceN8N.pacienteList) {
+                WhatsappServiceN8N.pacienteList.removeIf(pendencia ->
+                        pendencia.getPacienteId().equals(pacienteBD.getId())
+                                && pendencia.getNumero().equalsIgnoreCase(numero));
+            }
+        }
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -89,6 +100,17 @@ public class N8NService {
         return restTemplate.exchange(URL_N8N_RESPOSTA, HttpMethod.POST, entity, String.class);
     }
 
+
+    public void enviandoMensagemApos48Horas(String numero, String mensagem48Horas) {
+        Map<String, Object> resposta = Map.of(
+                "resposta", mensagem48Horas,
+                "numero_usuario", numero);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(resposta, headers);
+        restTemplate.exchange(URL_N8N_RESPOSTA, HttpMethod.POST, entity, String.class);
+    }
 
 
     private static Map<String, Object> getResposta(String numero) {
@@ -111,7 +133,26 @@ public class N8NService {
 
     private static boolean isFinalSemana() {
         LocalDate data = LocalDate.now(ZoneId.of("America/Recife")).plusDays(1L);
-        return data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SATURDAY.toString()) || data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SUNDAY.toString());
+        return data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SATURDAY.toString()) ||
+                data.getDayOfWeek().toString().equalsIgnoreCase(DayOfWeek.SUNDAY.toString());
     }
+
+
+    private void persistindoDados(String mensagemUsuario, Paciente paciente){
+        if (paciente.getMotivo().equalsIgnoreCase("ACEITO")) return;
+
+        if(mensagemUsuario.equalsIgnoreCase("SIM") || mensagemUsuario.equalsIgnoreCase("S") ||
+        mensagemUsuario.equalsIgnoreCase("SI")) {
+           paciente.setMotivo("ACEITO");
+           pacienteRepository.save(paciente);
+           return;
+        }
+
+        paciente.setMotivo("NÃO POSSUI INTERESSE");
+        pacienteRepository.save(paciente);
+    }
+
+
+
 
 }

@@ -31,15 +31,17 @@ public class FilaService {
      * @return task {@link CompletableFuture} que possui uma regra de negócio aonde fazendo a
      * persistência usando Spring-jpa.
      */
+
+    //TODO CORRIGI DEPOIS O NULL NO NUMEROS
     private CompletableFuture<Void> persistirDados(String mensagemUsuario, Paciente paciente, String numero) {
         return CompletableFuture.runAsync(() -> {
             if (mensagemUsuario.equalsIgnoreCase("ACEITO")) {
                 paciente.setMotivo("ACEITO");
-                paciente.setNumero(numero);
+                paciente.setNumero(null);
                 this.pacienteRepository.save(paciente);
             } else {
                 paciente.setMotivo(mensagemUsuario);
-                paciente.setNumero(numero);
+                paciente.setNumero(null);
                 this.pacienteRepository.save(paciente);
             }
         });

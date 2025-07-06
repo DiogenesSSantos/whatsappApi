@@ -123,7 +123,7 @@ public class Paciente implements Comparable<Paciente> {
      * @return the número
      */
     public String getNumero() {
-        return this.numero;
+        return "55"+this.numero;
     }
 
 
@@ -219,4 +219,7 @@ public class Paciente implements Comparable<Paciente> {
     public int compareTo(Paciente o) {
         return this.getNome().compareTo(o.getNome());
     }
+
+
+
 }
