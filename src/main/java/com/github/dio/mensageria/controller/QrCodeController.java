@@ -2,7 +2,6 @@ package com.github.dio.mensageria.controller;
 
 import com.github.dio.mensageria.documentacao.openapi.model.QrCodeDocumentationOpenAPI;
 import com.github.dio.mensageria.infraestrutura.QrCodeService.QrCodeGenerator;
-import com.github.dio.mensageria.service.WhatsappService;
 import com.github.dio.mensageria.service.WhatsappServiceN8N;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;

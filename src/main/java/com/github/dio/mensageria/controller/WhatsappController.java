@@ -1,9 +1,8 @@
 package com.github.dio.mensageria.controller;
 
 
-import com.github.dio.mensageria.model.modeloRepresentacional.PacienteMR;
 import com.github.dio.mensageria.documentacao.openapi.model.WhatsappDocumentationOpenAPI;
-import com.github.dio.mensageria.service.WhatsappService;
+import com.github.dio.mensageria.model.modeloRepresentacional.PacienteMR;
 import com.github.dio.mensageria.service.WhatsappServiceN8N;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,7 @@ import java.util.List;
 @RequestMapping(value = {"/api/zap"}, produces = {"application/json"})
 public class WhatsappController extends WhatsappDocumentationOpenAPI {
 
-//    @Autowired
-//    private WhatsappService service;
+
 
     @Autowired
     WhatsappServiceN8N serviceN8N;

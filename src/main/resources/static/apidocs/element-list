@@ -1,6 +1,6 @@
 com.github.dio.mensageria
-com.github.dio.mensageria.authetication
-com.github.dio.mensageria.beans
+com.github.dio.mensageria.configuration.authetication
+com.github.dio.mensageria.configuration.beans
 com.github.dio.mensageria.controller
 com.github.dio.mensageria.documentacao.openapi
 com.github.dio.mensageria.documentacao.openapi.model

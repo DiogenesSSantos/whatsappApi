@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.authetication;
+package com.github.dio.mensageria.configuration.authetication;
 
 
 import org.springframework.context.annotation.Bean;

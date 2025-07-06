@@ -21,7 +21,7 @@ public class N8nController {
 
 
     @PostMapping(path = {"/resposta"})
-    public ResponseEntity<?> resposta(@RequestBody Map<String, String> corpoJson) {
+    public ResponseEntity<?> respostaN8N(@RequestBody Map<String, String> corpoJson) {
 
         n8NService.resposta(Long.valueOf(corpoJson.get("id_cliente_bd")),
                 corpoJson.get("numero_usuario"),
