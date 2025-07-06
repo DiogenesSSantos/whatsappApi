@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  */
 @Service
+@Deprecated(forRemoval = false)
 public class FilaService {
     private static final LinkedBlockingQueue<Runnable> fila = new LinkedBlockingQueue(250);
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();

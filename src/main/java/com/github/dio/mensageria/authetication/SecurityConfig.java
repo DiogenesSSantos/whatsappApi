@@ -28,7 +28,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/apidocs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/zap/enviarList").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/zap/desconectar").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/zap/reconectar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/zap/n8n/resposta").permitAll()
+                        .anyRequest().authenticated()
                 ).csrf(csrf -> csrf.disable())
                 .formLogin(httpSecurityFormLoginConfigurer ->
                         httpSecurityFormLoginConfigurer.defaultSuccessUrl("/" , true));

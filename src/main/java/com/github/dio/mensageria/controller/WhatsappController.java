@@ -35,12 +35,12 @@ public class WhatsappController extends WhatsappDocumentationOpenAPI {
     @DeleteMapping({"/desconectar"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void desconectarWhatsApp() {
-        //this.service.desconectar();
+        this.serviceN8N.desconectar();
     }
 
     @PutMapping({"/reconectar"})
     @ResponseStatus(HttpStatus.OK)
     public void reconectarWhatsApp() {
-       // this.service.conectar();
+        this.serviceN8N.conectar();
     }
 }

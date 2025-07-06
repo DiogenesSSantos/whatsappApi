@@ -22,14 +22,13 @@ public class N8nController {
 
     @PostMapping(path = {"/resposta"})
     public ResponseEntity<?> resposta(@RequestBody Map<String, String> corpoJson) {
-        System.out.println(corpoJson);
 
         n8NService.resposta(Long.valueOf(corpoJson.get("id_cliente_bd")),
                 corpoJson.get("numero_usuario"),
                 corpoJson.get("mensagem"));
 
 
-        return null;
+        return ResponseEntity.ok().build();
     }
 
 

@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @Override no método onNewMessage().
  */
 @EnableAsync
+@Deprecated(forRemoval = true)
 public class ListenerNovaMensagem implements Listener {
     /**
      * Na regra de negócio, temos um set por uuid do {@link Paciente}, nos auxiliar em algumas validações.

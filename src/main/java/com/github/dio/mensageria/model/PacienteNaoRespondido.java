@@ -1,11 +1,11 @@
 package com.github.dio.mensageria.model;
 
-public class Pendencia {
+public class PacienteNaoRespondido {
 
     private Long pacienteId;
     private String numero;
 
-    public Pendencia(Long pacienteId, String numero) {
+    public PacienteNaoRespondido(Long pacienteId, String numero) {
         this.pacienteId = pacienteId;
         this.numero = numero;
     }

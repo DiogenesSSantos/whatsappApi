@@ -40,6 +40,21 @@ public class N8NService {
             .toString());
 
 
+    private static final String MSN_PADRAO_NAO_INTERESSE = String.format(new StringBuilder()
+            .append("*Arquivamento de Solicitação*%n%n")
+            .append("📌 *Atenção:* você sinalizou que não tem interesse em manter sua solicitação de consulta/exame.%n")
+            .append("📂 Sua solicitação será arquivada e retirada da fila de atendimento.%n%n")
+            .append("🔄 Caso mude de ideia, basta comparecer no setor de regulação da secretaria informar que a " +
+                    "equipe vai explicar como solicitar novamente .%n%n")
+            .append("✅ *Atenciosamente, Regulação de Saúde!*")
+            .toString());
+
+
+
+
+
+
+
     private static final String URL_N8N = "https://n8n.devdiogenes.shop/webhook/api-java";
     private static final String URL_N8N_RESPOSTA = "https://n8n.devdiogenes.shop/webhook/api-java-resposta";
     private static final Logger log = LoggerFactory.getLogger(N8NService.class);
@@ -75,15 +90,13 @@ public class N8NService {
     }
 
 
-    public ResponseEntity<?> resposta(Long id, String numero, String respostaPacinete) {
+    public ResponseEntity<?> resposta(Long id, String numero, String respostaPaciente) {
         System.out.println("RESPOSTA DO N8N");
         var pacienteOptional = pacienteRepository.findById(id);
 
         if (pacienteOptional.isPresent()) {
             Paciente pacienteBD = pacienteOptional.get();
-
-            persistindoDados(respostaPacinete , pacienteBD);
-
+            persistindoDados(respostaPaciente, pacienteBD);
             synchronized (WhatsappServiceN8N.pacienteList) {
                 WhatsappServiceN8N.pacienteList.removeIf(pendencia ->
                         pendencia.getPacienteId().equals(pacienteBD.getId())
@@ -94,7 +107,7 @@ public class N8NService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        Map<String, Object> resposta = getResposta(numero);
+        Map<String, Object> resposta = getResposta(numero, respostaPaciente);
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(resposta, headers);
 
         return restTemplate.exchange(URL_N8N_RESPOSTA, HttpMethod.POST, entity, String.class);
@@ -113,7 +126,19 @@ public class N8NService {
     }
 
 
-    private static Map<String, Object> getResposta(String numero) {
+    private static Map<String, Object> getResposta(String numero, String respostaPaciente) {
+        if (respostaPaciente.equalsIgnoreCase("NAO") ||
+                respostaPaciente.equalsIgnoreCase("NÃO") ||
+                respostaPaciente.equalsIgnoreCase("N") ||
+                respostaPaciente.equalsIgnoreCase("NO")) {
+
+            Map<String, Object> resposta = Map.of(
+                    "resposta",MSN_PADRAO_NAO_INTERESSE ,
+                    "numero_usuario", numero);
+            return resposta;
+        }
+
+
         if (isFinalSemana()) {
             Map<String, Object> resposta = Map.of(
                     "resposta", MSN_PADRAO_FINAL_DE_SEMANA,
@@ -138,21 +163,19 @@ public class N8NService {
     }
 
 
-    private void persistindoDados(String mensagemUsuario, Paciente paciente){
+    private void persistindoDados(String mensagemUsuario, Paciente paciente) {
         if (paciente.getMotivo().equalsIgnoreCase("ACEITO")) return;
 
-        if(mensagemUsuario.equalsIgnoreCase("SIM") || mensagemUsuario.equalsIgnoreCase("S") ||
-        mensagemUsuario.equalsIgnoreCase("SI")) {
-           paciente.setMotivo("ACEITO");
-           pacienteRepository.save(paciente);
-           return;
+        if (mensagemUsuario.equalsIgnoreCase("SIM") || mensagemUsuario.equalsIgnoreCase("S") ||
+                mensagemUsuario.equalsIgnoreCase("SI")) {
+            paciente.setMotivo("ACEITO");
+            pacienteRepository.save(paciente);
+            return;
         }
 
         paciente.setMotivo("NÃO POSSUI INTERESSE");
         pacienteRepository.save(paciente);
     }
-
-
 
 
 }

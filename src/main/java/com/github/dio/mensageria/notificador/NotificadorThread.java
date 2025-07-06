@@ -13,7 +13,7 @@ public class NotificadorThread {
 
     public static void notificar(WhatsappServiceN8N service) {
         if (!WhatsappServiceN8N.isNotificado) {
-            log.warn("ATIVANDO LIMPEZA 24 HORAS");
+            log.warn("Limpeza sera feita em 48 horas.");
             service.agendarLimpezaComDelayedExecutor();
             WhatsappServiceN8N.isNotificado = Boolean.TRUE;
         }

@@ -29,11 +29,13 @@ import java.util.concurrent.*;
 
 
 /**
+ * @deprecated
  *  Classe de serviço aonde conectamos a biblioteca o Auties/cobalt para inicialização de uma
  *  instãncia do {@link Whatsapp}, além de enviar mensagem.
  * @author diogenesssantos.
  */
 
+@Deprecated(forRemoval = false)
 public class WhatsappService {
 
     private static final Logger log = LoggerFactory.getLogger(com.github.dio.mensageria.service.WhatsappService.class);

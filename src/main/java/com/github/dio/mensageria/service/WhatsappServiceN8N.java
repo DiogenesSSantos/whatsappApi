@@ -2,10 +2,8 @@ package com.github.dio.mensageria.service;
 
 
 import com.github.dio.mensageria.infraestrutura.assembler.AssemblerPaciente;
-import com.github.dio.mensageria.listener.ListenerNovaMensagem;
 import com.github.dio.mensageria.model.Paciente;
-import com.github.dio.mensageria.model.PacienteEncapsuladoNaoRespondido;
-import com.github.dio.mensageria.model.Pendencia;
+import com.github.dio.mensageria.model.PacienteNaoRespondido;
 import com.github.dio.mensageria.model.modeloRepresentacional.PacienteMR;
 import com.github.dio.mensageria.notificador.NotificadorThread;
 import com.github.dio.mensageria.repository.PacienteRepository;
@@ -32,24 +30,32 @@ import java.util.concurrent.*;
 public class WhatsappServiceN8N {
     private static final Logger log = LoggerFactory.getLogger(WhatsappServiceN8N.class);
 
-    public static final String NAO_RESPONDIDA_MSG_PADRÃO = "Informamos que o prazo de 48 horas para a retirada do comprovante de agendamento expirou. " +
-            "Se você já retirou o seu comprovante, por favor, desconsidere este aviso. Caso contrário, " +
-            "seu comprovante será encaminhado para a Unidade Básica de Saúde (Posto de Saúde) do seu " +
-            "bairro e estará disponível para retirada em até 24 horas a partir do recebimento desta mensagem.\n\n" +
-            "Atenciosamente, Regulação de Saúde.";
+    public static final String NAO_RESPONDIDA_MSG_PADRAO_FINAL_DE_SEMANA=
+            "Olá!\n\n" +
+                    "Informamos que o prazo de 48 horas para retirada do seu comprovante de agendamento expirou.\n" +
+                    "Se você já retirou o comprovante, por favor, desconsidere esta mensagem.\n" +
+                    "Caso ainda não tenha feito a retirada, encaminharemos seu comprovante para a Unidade Básica de Saúde do seu bairro. " +
+                    "Ele estará disponível para retirada a partir da próxima terça-feira.\n\n" +
+                    "Atenciosamente,\n" +
+                    "Equipe de Regulação de Saúde.";
 
 
-    public static final String NAO_RESPONDIDA_MSG_PADRÃO_FINAL_SEMANA = "Informamos que o prazo de 48 horas para a retirada do comprovante de agendamento expirou. " +
-            "Se você já retirou o seu comprovante, por favor, desconsidere este aviso. Caso contrário, " +
-            "seu comprovante será encaminhado para a Unidade Básica de Saúde (Posto de Saúde) do seu " +
-            "bairro e estará disponível para retirada nessa proxima terça feira.\n\n" +
-            "Atenciosamente, Regulação de Saúde.";
+
+    public static final String NAO_RESPONDIDA_MSG_PADRAO =
+            "Olá!\n\n" +
+            "Informamos que o prazo de 48 horas para retirada do seu comprovante de agendamento expirou.\n" +
+            "Se você já retirou o comprovante, por favor, desconsidere esta mensagem.\n" +
+            "Caso ainda não tenha feito a retirada, encaminharemos seu comprovante para a Unidade Básica de Saúde do seu bairro. " +
+            "Ele estará disponível retirada em até 24 horas a partir do recebimento desta mensagem..\n\n" +
+            "Atenciosamente,\n" +
+            "Equipe de Regulação de Saúde.";
+
 
 
     private static CompletableFuture<Whatsapp> whatsappFuture;
     private static final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     public static final Set<String> pacienteSetStringUUID = new ConcurrentSkipListSet<>();
-    public static final List<Pendencia> pacienteList = new LinkedList<>();
+    public static final List<PacienteNaoRespondido> pacienteList = new LinkedList<>();
     public static Boolean isNotificado = Boolean.FALSE;
 
 
@@ -132,7 +138,7 @@ public class WhatsappServiceN8N {
 
     @Scheduled(initialDelay = 120000L, fixedDelay = 30000L)
     public void verificarConexao() throws InterruptedException {
-        log.info("LIMPEZA_DO_GARBAGE_COLLECTION");
+        log.info("LIMPEZA_DO_GARBAGE_COLLECTION__VERSÃO");
         System.gc();
         TimeUnit.SECONDS.sleep(15);
         Whatsapp whatsapp = whatsappFuture.getNow(null);
@@ -186,7 +192,7 @@ public class WhatsappServiceN8N {
                 if (whatsapp.hasWhatsapp(contactJid).get()) {
                     var pacientePersistido = salvandoIncialmenteAguardando(pacienteMR);
 
-                    pacienteList.add(new Pendencia(pacientePersistido.getId(), numero));
+                    pacienteList.add(new PacienteNaoRespondido(pacientePersistido.getId(), numero));
 
 
 
@@ -281,17 +287,15 @@ public class WhatsappServiceN8N {
         if (WhatsappServiceN8N.isNotificado) return;
         WhatsappServiceN8N.isNotificado = true;
 
-        log.warn("LIMPEZA VAI RODAR EM 5 MINUTOS");
         CompletableFuture
                 .runAsync(this::limpezaInterna,
-                        CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES))
+                        CompletableFuture.delayedExecutor(48, TimeUnit.HOURS))
                 .thenRun(() -> {
                     WhatsappServiceN8N.isNotificado = false;
                 });
     }
 
     private void limpezaInterna() {
-        System.out.println(pacienteList);
 
         if (!pacienteList.isEmpty()) {
             pacienteList.forEach(paciente -> {
@@ -305,11 +309,11 @@ public class WhatsappServiceN8N {
                     if (isFinalSemana()) {
                         n8NService.enviandoMensagemApos48Horas(
                                 paciente.getNumero().toString(),
-                                NAO_RESPONDIDA_MSG_PADRÃO_FINAL_SEMANA);
+                                NAO_RESPONDIDA_MSG_PADRAO_FINAL_DE_SEMANA);
                     } else {
                         n8NService.enviandoMensagemApos48Horas(
                                 paciente.getNumero().toString(),
-                                NAO_RESPONDIDA_MSG_PADRÃO);
+                                NAO_RESPONDIDA_MSG_PADRAO);
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -318,7 +322,6 @@ public class WhatsappServiceN8N {
             });
         }
 
-        // pós-processamento
         log.warn("____LIMPEZA_PERIÓDICA____");
         pacienteSetStringUUID.clear();
         pacienteList.clear();

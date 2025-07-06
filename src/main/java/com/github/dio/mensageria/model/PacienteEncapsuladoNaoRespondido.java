@@ -5,12 +5,15 @@ import it.auties.whatsapp.model.jid.Jid;
 import java.util.Objects;
 
 /**
+ * @deprecated
  * Classe responsável encapsular o {@link Paciente} e o número de telefone em formato {@link Jid}
  * da instancia {@link it.auties.whatsapp.api.Whatsapp}
  * sendo a mesma uma classe Final, não mudança de estado após criação.
  *
  * @author diogenesssantos
  */
+
+@Deprecated(forRemoval = false)
 public class PacienteEncapsuladoNaoRespondido  {
 
     private Paciente paciente;

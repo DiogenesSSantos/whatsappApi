@@ -8,6 +8,7 @@ import com.github.dio.mensageria.model.Paciente;
  * @author diogenesssantos Classe modelo para representação do {@link Paciente}
  * @hidden
  */
+@Deprecated(forRemoval = false)
 class PacienteRP {
     private String numeroUsuario;
     private Boolean motivoDesistencia = false;
