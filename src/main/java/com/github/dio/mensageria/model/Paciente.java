@@ -57,7 +57,7 @@ public class Paciente implements Comparable<Paciente> {
      * @param bairro       o bairro
      * @param consulta     o tipo consulta
      * @param dataConsulta a data consulta
-     * @param motivo       o motivo decidido no {@link com.github.dio.mensageria.service.WhatsappService} em conjunto                     {@link com.github.dio.mensageria.listener.ListenerNovaMensagem}
+     * @param motivo       o motivo decidido
      */
     public Paciente(String nome, String numero, String bairro, String consulta, String dataConsulta, String motivo) {
         this.nome = nome;
@@ -123,7 +123,7 @@ public class Paciente implements Comparable<Paciente> {
      * @return the número
      */
     public String getNumero() {
-        return this.numero;
+        return "55"+this.numero;
     }
 
 
@@ -219,4 +219,7 @@ public class Paciente implements Comparable<Paciente> {
     public int compareTo(Paciente o) {
         return this.getNome().compareTo(o.getNome());
     }
+
+
+
 }

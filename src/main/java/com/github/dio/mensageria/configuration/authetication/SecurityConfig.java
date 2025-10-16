@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.authetication;
+package com.github.dio.mensageria.configuration.authetication;
 
 
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,10 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/apidocs/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/zap/enviarList").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/zap/enviarList").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/zap/desconectar").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/zap/reconectar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/zap/n8n/resposta").permitAll()
                         .anyRequest().authenticated()
                 ).csrf(csrf -> csrf.disable())
                 .formLogin(httpSecurityFormLoginConfigurer ->

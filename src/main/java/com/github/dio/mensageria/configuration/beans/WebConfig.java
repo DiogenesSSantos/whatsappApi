@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.beans;
+package com.github.dio.mensageria.configuration.beans;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

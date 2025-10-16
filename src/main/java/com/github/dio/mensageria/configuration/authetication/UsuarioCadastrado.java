@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.authetication;
+package com.github.dio.mensageria.configuration.authetication;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,8 +31,8 @@ public class UsuarioCadastrado {
      */
     @Bean
     public UserDetailsService userDetailsService() {
-        var user = User.builder().username("Seu_Nome_Usuário")
-                .password("{noop}Sua_Senha")
+        var user = User.builder().username("DioDev")
+                .password("{noop}Dio84768748@")
                 .roles("ADMIM" , "USER")
                 .build();
 
