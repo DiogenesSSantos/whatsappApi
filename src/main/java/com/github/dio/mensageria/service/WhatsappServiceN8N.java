@@ -15,6 +15,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,9 @@ import java.util.concurrent.*;
 @Service
 public class WhatsappServiceN8N {
     private static final Logger log = LoggerFactory.getLogger(WhatsappServiceN8N.class);
+    @Value("${VERSAO_WHATSAPP}")
+    private  String VERSION_WHATSAPP;
+
 
     public static final String NAO_RESPONDIDA_MSG_PADRAO_FINAL_DE_SEMANA=
             "Olá!\n\n" +
@@ -94,7 +98,7 @@ public class WhatsappServiceN8N {
                     System.out.printf("disconectado: %s%n", reason);
                 });
 
-        whatsapp.store().setDevice(CompanionDevice.web(Version.of("2.3000.1023231279")));
+        whatsapp.store().setDevice(CompanionDevice.web(Version.of(VERSION_WHATSAPP)));
         whatsapp.connect();
         whatsappFuture.complete(whatsapp);
 
