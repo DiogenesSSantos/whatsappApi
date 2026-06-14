@@ -15,15 +15,6 @@ import java.util.concurrent.ExecutionException;
 @EnableScheduling
 @SpringBootApplication
 public class WhatsappApiApplication {
-
-    static {
-        Thread.setDefaultUncaughtExceptionHandler((thread, exception) -> {
-            System.err.println("Erro não capturado na thread " + thread.getName() + ": " + exception.getMessage());
-            exception.printStackTrace();
-        });
-    }
-
-
     /**
      *
      * @param args the input arguments
@@ -33,7 +24,6 @@ public class WhatsappApiApplication {
      */
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         SpringApplication.run(WhatsappApiApplication.class, args);
-        System.out.println("Test Commit");
     }
 
 }

@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.github.auties00</groupId>
             <artifactId>cobalt</artifactId>
-            <version>0.0.7</version>
+            <version>0.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -141,7 +141,7 @@
                         <annotationProcessorPath>
                             <groupId>com.github.auties00</groupId>
                             <artifactId>cobalt</artifactId>
-                            <version>0.0.7</version>
+                            <version>0.0.10</version>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                 </configuration>

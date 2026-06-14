@@ -18,6 +18,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -113,13 +114,10 @@ public class WhatsappService {
                 .addDisconnectedListener(reason -> {
                     whatsappFuture = new CompletableFuture<>();
                     System.out.printf("disconectado: %s%n", reason);
-                });
+                }).connect()
+                .join();
 
-        whatsapp.store().setDevice(CompanionDevice.web(Version.of("2.3000.1023231279")));
-        whatsapp.connect();
         whatsappFuture.complete(whatsapp);
-        recuperandoListenerNovaMensagem(whatsappFuture);
-
     }
 
 
