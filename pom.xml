@@ -118,7 +118,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- Verifique se o pacote da classe principal está correto -->
-                    <mainClass>com.github.dio.mensageria.WhatsappApiApplication</mainClass>
+                    <mainClass>com.github.dio.mensageria.start</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
