@@ -12,21 +12,10 @@ public class Paciente {
     private Contato contato;
     private Consulta consulta;
 
-    public Paciente() {
+
+    private Paciente() {
     }
 
-    public Paciente(String nome, Contato contato, Consulta consulta) {
-        this.codigo = gerarCodigo();
-        this.nome = nome;
-        this.contato = contato;
-        this.consulta = consulta;
-
-    }
-
-
-    private static String gerarCodigo() {
-        return UUID.randomUUID().toString();
-    }
 
     public String getCodigo() {
         return codigo;
@@ -43,4 +32,57 @@ public class Paciente {
     public Consulta getConsulta() {
         return consulta;
     }
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String nome;
+        private Contato contato;
+        private Consulta consulta;
+
+        private Builder() {
+        }
+
+        public Builder nome(String nome) {
+            this.nome = nome;
+            return this;
+        }
+
+        public Builder contato(Contato contato) {
+            this.contato = contato;
+            return this;
+        }
+
+        public Builder consulta(Consulta consulta) {
+            this.consulta = consulta;
+            return this;
+        }
+
+        public Paciente build() {
+            if (nome == null || nome.isBlank()) {
+                throw new PacienteBuilderException("Nome é obrigatório");
+            }
+            if (contato == null) {
+                throw new PacienteBuilderException("Contato é obrigatório");
+            }
+            if (consulta == null) {
+                throw new PacienteBuilderException("Consulta é obrigatória");
+            }
+
+            Paciente paciente = new Paciente();
+            paciente.codigo = gerarCodigo();
+            paciente.nome = nome;
+            paciente.contato = contato;
+            paciente.consulta = consulta;
+            return paciente;
+        }
+
+        private String gerarCodigo() {
+            return UUID.randomUUID().toString();
+        }
+    }
+
 }
