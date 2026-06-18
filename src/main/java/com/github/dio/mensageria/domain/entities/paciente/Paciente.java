@@ -12,7 +12,6 @@ public class Paciente {
     private Contato contato;
     private Consulta consulta;
 
-
     private Paciente() {
     }
 

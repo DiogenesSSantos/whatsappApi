@@ -1,45 +1,51 @@
 package com.github.dio.mensageria.domain.entities.contato;
 
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Contato {
-    private static final Pattern TELEFONE_BRASIL = Pattern.compile("^55[1-9][0-9](?:9\\d{8}|\\d{8})$");
 
-    private String numeroCelular;
+    private LinkedList<Numero> numerosCelular;
     private String bairro;
 
-
-    public Contato(String numeroCelular, String bairro) {
-        if (!validaNumeroTelefone(numeroCelular)) {
-            throw new CelularInvalidoException(
-                    String.format("O numero {%s} inválido, deve ser apenas dígitos no padrão: 55DDDnumero.",
-                            numeroCelular));
-        }
-        this.numeroCelular = numeroCelular;
+    public Contato(LinkedList<Numero> numerosCelular, String bairro) {
         this.bairro = bairro;
-    }
 
+        if (numerosCelular == null) {
+            this.numerosCelular = new LinkedList<>();
+            return;
+        }
 
-    public void atualizarNumero(String novoNumero) {
-        this.numeroCelular = novoNumero;
+        this.numerosCelular = numerosCelular;
     }
 
     public void atualizarBairro(String novoBairro) {
         this.bairro = novoBairro;
     }
 
-    public String getNumeroCelular() {
-        return numeroCelular;
+    public void atualizarNumeroParaContato (String numeroAntigo, String numeroNovo) {
+        int indexNumero = numerosCelular.indexOf(numeroAntigo);
+        if (indexNumero == -1) {
+            numerosCelular.add(new Numero(numeroNovo));
+            return;
+        }
+        numerosCelular.get(indexNumero).atualizar(numeroNovo);
     }
+
+    public LinkedList<Numero> getNumerosCelular() {
+        return numerosCelular;
+    }
+
+    public boolean existeNumeroParaContato(String numero) {
+        return numerosCelular.contains(numero);
+    }
+
 
     public String getBairro() {
         return bairro;
     }
 
-    public boolean validaNumeroTelefone(String numeroCelular) {
-        if (numeroCelular == null) return false;
-        String trimmed = numeroCelular.trim();
-        return TELEFONE_BRASIL.matcher(trimmed).matches();
-    }
 }
 

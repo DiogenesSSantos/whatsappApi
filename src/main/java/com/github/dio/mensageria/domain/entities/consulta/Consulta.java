@@ -18,8 +18,6 @@ public class Consulta {
         this.status = Status.MARCADO;
     }
 
-
-    // Capturar a exception com handler, DateTimeParseExceptio e a personalizado (IllegalArgumentException)
     private void validarDataConsulta(LocalDateTime dataConsulta) {
         if (dataConsulta.isBefore(LocalDateTime.now())) {
             throw new DataPassadoException("Data consulta não pode ser no passado");
@@ -44,6 +42,8 @@ public class Consulta {
 
     public enum Status {
         MARCADO,
+        AGUARDANDO,
+        NAO_POSSUI_WHATSAPP,
         REJEITADO
     }
 }
