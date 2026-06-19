@@ -1,9 +1,6 @@
 package com.github.dio.mensageria.domain.entities.contato;
 
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 public class Contato {
 
@@ -21,25 +18,35 @@ public class Contato {
         this.numerosCelular = numerosCelular;
     }
 
+
+    public void adicionarNumeroCelular(String novoNumero) {
+        if (existeNumeroParaContato(novoNumero)) return;
+
+        Numero numero = new Numero(novoNumero);
+        this.numerosCelular.add(numero);
+    }
+
     public void atualizarBairro(String novoBairro) {
         this.bairro = novoBairro;
     }
 
-    public void atualizarNumeroParaContato (String numeroAntigo, String numeroNovo) {
-        int indexNumero = numerosCelular.indexOf(numeroAntigo);
-        if (indexNumero == -1) {
-            numerosCelular.add(new Numero(numeroNovo));
-            return;
+    public void atualizarNumeroParaContato(String numeroAntigo, String numeroNovo) {
+        for (Numero numero : numerosCelular) {
+            if (numero.getCelular().equals(numeroAntigo)) {
+                numero.atualizar(numeroNovo);
+                return;
+            }
         }
-        numerosCelular.get(indexNumero).atualizar(numeroNovo);
-    }
-
-    public LinkedList<Numero> getNumerosCelular() {
-        return numerosCelular;
     }
 
     public boolean existeNumeroParaContato(String numero) {
-        return numerosCelular.contains(numero);
+        return numerosCelular.stream()
+                .anyMatch(numeroDaList -> numeroDaList.getCelular().equals(numero));
+    }
+
+
+    public LinkedList<Numero> getNumerosCelular() {
+        return numerosCelular;
     }
 
 
