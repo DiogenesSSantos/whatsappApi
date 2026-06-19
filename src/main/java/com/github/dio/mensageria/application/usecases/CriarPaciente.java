@@ -1,12 +1,11 @@
 package com.github.dio.mensageria.application.usecases;
 
 import com.github.dio.mensageria.application.gateways.PacienteRepository;
-import com.github.dio.mensageria.domain.entities.paciente.Paciente;
+import com.github.dio.mensageria.domain.paciente.Paciente;
 
 public class CriarPaciente {
 
     private final PacienteRepository pacienteRepository;
-
 
     public CriarPaciente(PacienteRepository pacienteRepository) {
         this.pacienteRepository = pacienteRepository;
@@ -16,9 +15,6 @@ public class CriarPaciente {
         return pacienteRepository.salvar(paciente);
     }
 
-    public Paciente cadastrarPacienteNaoPossuiWhatsapp(Paciente paciente) {
-        return pacienteRepository.salvarNaoPossuiWhatsapp(paciente);
-    }
 
 
 }
