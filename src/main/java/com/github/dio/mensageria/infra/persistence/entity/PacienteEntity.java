@@ -1,14 +1,12 @@
-package com.github.dio.mensageria.infra.persistence;
+package com.github.dio.mensageria.infra.persistence.entity;
 
 
 import com.github.dio.mensageria.domain.consulta.Consulta;
 import com.github.dio.mensageria.domain.contato.Contato;
 import jakarta.persistence.*;
 
-//@Entity
-//@Table(
-//        name = "tb_paciente"
-//)
+@Entity
+@Table(name = "tb_paciente")
 public class PacienteEntity {
 
     @Id
@@ -17,14 +15,20 @@ public class PacienteEntity {
 
     @Column(unique = true, length = 36)
     private String codigo;
+
+    @Column(name = "nome_paciente")
     private String nome;
-    private Contato contato;
-    private Consulta consulta;
+
+    @Embedded
+    private ContatoEmbeddable contato;
+
+    @Embedded
+    private ConsultaEmbeddable consulta;
 
 
     public PacienteEntity(){}
 
-    public PacienteEntity(String codigo, String nome, Contato contato, Consulta consulta) {
+    public PacienteEntity(String codigo, String nome, ContatoEmbeddable contato, ConsultaEmbeddable consulta) {
         this.codigo = codigo;
         this.nome = nome;
         this.contato = contato;
@@ -40,11 +44,11 @@ public class PacienteEntity {
         return nome;
     }
 
-    public Contato getContato() {
+    public ContatoEmbeddable getContato() {
         return contato;
     }
 
-    public Consulta getConsulta() {
+    public ConsultaEmbeddable getConsulta() {
         return consulta;
     }
 }

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +21,7 @@ class PacienteTest {
     @Test
     void deveCriarOPacienteQuandoTiverTodosOsCamposValidos() {
         LinkedList<Numero> numeroLinkedList = new LinkedList<>();
-        numeroLinkedList.add(new Numero("81984768748"));
+        numeroLinkedList.add(new Numero("5581984768748"));
 
         Paciente paciente = Paciente.builder()
                 .nome("Diogenes")
@@ -29,7 +31,7 @@ class PacienteTest {
 
         assertAll(
                 () -> assertEquals("Diogenes", paciente.getNome()),
-                () -> assertEquals(true, paciente.getContato().existeNumeroParaContato("81984768748")),
+                () -> assertTrue(paciente.getContato().existeNumeroParaContato("5581984768748")),
                 () -> assertEquals("Alto da balança", paciente.getContato().getBairro()),
                 () -> assertEquals("Consulta Cardiológica", paciente.getConsulta().getNome()),
                 () -> assertEquals(LocalDateTime.parse("2026-10-22T11:20"), paciente.getConsulta().getDataAtendimento()),
@@ -41,9 +43,26 @@ class PacienteTest {
 
 
     @Test
+    void deveCriarUmPacienteComUUIDCasoNecessite() {
+        LinkedList<Numero> numeroLinkedList = new LinkedList<>();
+        numeroLinkedList.add(new Numero("5581984768748"));
+
+        assertThrows(PacienteBuilderException.class,
+                () -> Paciente.builder()
+                        .codigo(UUID.randomUUID().toString())
+                        .nome("Diogenes")
+                        .contato(new Contato(numeroLinkedList, "Alto da balança"))
+                        .consulta(null)
+                        .build(),
+                () -> "Esperava exception PacienteBuilderException mas obteve outro comportamento.");
+
+    }
+
+
+    @Test
     void deveLancarPacienteBuilderExceptionQuandoTentarCriarUmPacienteVazioOuNull() {
         LinkedList<Numero> numeroLinkedList = new LinkedList<>();
-        numeroLinkedList.add(new Numero("81984768748"));
+        numeroLinkedList.add(new Numero("5581984768748"));
 
 
         assertAll(
@@ -84,9 +103,25 @@ class PacienteTest {
 
 
     @Test
+    void deveLancarPacienteBuilderExceptionQuandoTentarCriarUmPacienteSemConsulta() {
+        LinkedList<Numero> numeroLinkedList = new LinkedList<>();
+        numeroLinkedList.add(new Numero("5581984768748"));
+
+        assertThrows(PacienteBuilderException.class,
+                () -> Paciente.builder()
+                        .nome("Diogenes")
+                        .contato(new Contato(numeroLinkedList, "Alto da balança"))
+                        .consulta(null)
+                        .build(),
+                () -> "Esperava exception PacienteBuilderException mas obteve outro comportamento.");
+
+    }
+
+
+    @Test
     void deveLancarExceptionDataPassadoExceptionQuandoForAtribuidaUmaDataConsultaNoPassado() {
         LinkedList<Numero> numeroLinkedList = new LinkedList<>();
-        numeroLinkedList.add(new Numero("81984768748"));
+        numeroLinkedList.add(new Numero("5581984768748"));
         LocalDateTime dataPassado = LocalDateTime.parse("2026-01-31T11:22:00");
 
         assertThrows(DataPassadoException.class,

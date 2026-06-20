@@ -15,13 +15,7 @@ import java.util.concurrent.ExecutionException;
 @EnableScheduling
 @SpringBootApplication
 public class start {
-    /**
-     *
-     * @param args the input arguments
-     * @throws ExecutionException   the execution exception
-     * @throws InterruptedException the interrupted exception
-     * @hidden
-     */
+
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         SpringApplication.run(start.class, args);
     }

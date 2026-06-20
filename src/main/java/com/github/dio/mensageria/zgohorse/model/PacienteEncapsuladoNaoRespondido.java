@@ -11,54 +11,54 @@ import java.util.Objects;
  *
  * @author diogenesssantos
  */
-public class PacienteEncapsuladoNaoRespondido  {
-
-    private Paciente paciente;
-    private Jid numero;
-
-
-    /**
-     * A sua inicialização única mantendo o estado final.
-     *
-     * @param paciente o paciente
-     * @param numero   o numero
-     */
-    public PacienteEncapsuladoNaoRespondido(Paciente paciente, Jid numero) {
-        this.paciente = paciente;
-        this.numero = numero;
-    }
-
-
-    /**
-     * Gets paciente.
-     *
-     * @return o paciente
-     */
-    public Paciente getPaciente() {
-        return paciente;
-    }
-
-
-    /**
-     * Gets número.
-     *
-     * @return o número
-     */
-    public Jid getNumero() {
-        return numero;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        PacienteEncapsuladoNaoRespondido that = (PacienteEncapsuladoNaoRespondido) o;
-        return Objects.equals(paciente, that.paciente) && Objects.equals(numero, that.numero);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(paciente, numero);
-    }
-
-
-}
+//public class PacienteEncapsuladoNaoRespondido  {
+//
+//    private Paciente paciente;
+//    private Jid numero;
+//
+//
+//    /**
+//     * A sua inicialização única mantendo o estado final.
+//     *
+//     * @param paciente o paciente
+//     * @param numero   o numero
+//     */
+//    public PacienteEncapsuladoNaoRespondido(Paciente paciente, Jid numero) {
+//        this.paciente = paciente;
+//        this.numero = numero;
+//    }
+//
+//
+//    /**
+//     * Gets paciente.
+//     *
+//     * @return o paciente
+//     */
+//    public Paciente getPaciente() {
+//        return paciente;
+//    }
+//
+//
+//    /**
+//     * Gets número.
+//     *
+//     * @return o número
+//     */
+//    public Jid getNumero() {
+//        return numero;
+//    }
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (o == null || getClass() != o.getClass()) return false;
+//        PacienteEncapsuladoNaoRespondido that = (PacienteEncapsuladoNaoRespondido) o;
+//        return Objects.equals(paciente, that.paciente) && Objects.equals(numero, that.numero);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(paciente, numero);
+//    }
+//
+//
+//}
