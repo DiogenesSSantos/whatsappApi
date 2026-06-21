@@ -1,9 +1,6 @@
 package com.github.dio.mensageria.infra.persistence.entity;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -32,6 +32,15 @@ public class Paciente {
         return consulta;
     }
 
+    @Override
+    public String toString() {
+        return "Paciente{" +
+                "codigo='" + codigo + '\'' +
+                ", nome='" + nome + '\'' +
+                ", contato=" + contato +
+                ", consulta=" + consulta +
+                '}';
+    }
 
     public static Builder builder() {
         return new Builder();

@@ -1,13 +1,15 @@
 package com.github.dio.mensageria.domain.contato;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class Contato {
 
-    private LinkedList<Numero> numerosCelular;
+    private List<Numero> numerosCelular;
     private String bairro;
 
-    public Contato(LinkedList<Numero> numerosCelular, String bairro) {
+
+    public Contato(List<Numero> numerosCelular, String bairro) {
         this.bairro = bairro;
 
         if (numerosCelular == null) {
@@ -45,7 +47,7 @@ public class Contato {
     }
 
 
-    public LinkedList<Numero> getNumerosCelular() {
+    public List<Numero> getNumerosCelular() {
         return numerosCelular;
     }
 
@@ -54,5 +56,13 @@ public class Contato {
         return bairro;
     }
 
+
+    @Override
+    public String toString() {
+        return "Contato{" +
+                "numerosCelular=" + numerosCelular +
+                ", bairro='" + bairro + '\'' +
+                '}';
+    }
 }
 

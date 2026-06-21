@@ -27,18 +27,27 @@
     </properties>
 
     <dependencies>
+
+        <!-- Define dependências principais -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.auties00</groupId>
+            <artifactId>cobalt</artifactId>
+            <version>0.0.10</version>
+        </dependency>
+
+        <!-- Define dependências de Banco de Dados -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -48,35 +57,20 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+
+        <!-- Define dependências utilitárias -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.github.auties00</groupId>
-            <artifactId>cobalt</artifactId>
-            <version>0.0.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>2.0.16</version>
         </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.1.0</version>
-        </dependency>
+
+        <!-- Define dependências para geração de relatórios -->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-pdf</artifactId>
@@ -87,30 +81,32 @@
             <artifactId>jasperreports-functions</artifactId>
             <version>7.0.1</version>
         </dependency>
-        <!-- Dependências de Segurança -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
 
+        <!-- Define dependências de teste -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
 
     <build>
-        <!-- Define explicitamente os recursos para garantir o encoding -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -119,12 +115,10 @@
         </resources>
 
         <plugins>
-            <!-- Spring Boot Maven Plugin configurado com a classe principal correta -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Verifique se o pacote da classe principal está correto -->
                     <mainClass>com.github.dio.mensageria.start</mainClass>
                     <excludes>
                         <exclude>
@@ -135,7 +129,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -154,17 +147,13 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Javadoc Plugin para gerar documentação com métodos privados -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.11.2</version>
                 <configuration>
-                    <!-- Inclui membros privados -->
                     <show>private</show>
-                    <!-- Ignora erros do doclint para evitar falhas no build -->
                     <additionalJOptions>-Xdoclint:none</additionalJOptions>
-                    <!-- Faz com que o ‘Build’ continue mesmo se houver erros na geração dos Javadocs -->
                     <failOnError>false</failOnError>
                 </configuration>
             </plugin>

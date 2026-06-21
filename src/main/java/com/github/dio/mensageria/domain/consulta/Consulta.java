@@ -10,6 +10,9 @@ public class Consulta {
     private Status status;
 
 
+    public Consulta() {
+    }
+
     public Consulta(String consulta, LocalDateTime dataAtendimento) {
         validarDataConsulta(dataAtendimento);
         this.nome = consulta;
@@ -18,10 +21,26 @@ public class Consulta {
         this.status = Status.MARCADO;
     }
 
-    private void validarDataConsulta(LocalDateTime dataConsulta) {
-        if (dataConsulta.isBefore(LocalDateTime.now())) {
+    private void validarDataConsulta(LocalDateTime dataAtendimento) {
+        if (dataAtendimento.isBefore(LocalDateTime.now())) {
             throw new DataPassadoException("Data consulta não pode ser no passado");
         }
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setDataAtendimento(LocalDateTime dataAtendimento) {
+        this.dataAtendimento = dataAtendimento;
+    }
+
+    public void setDataMarcacao(LocalDateTime dataMarcacao) {
+        this.dataMarcacao = dataMarcacao;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getNome() {
@@ -38,6 +57,17 @@ public class Consulta {
 
     public Status getStatus() {
         return status;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Consulta{" +
+                "nome='" + nome + '\'' +
+                ", dataAtendimento=" + dataAtendimento +
+                ", dataMarcacao=" + dataMarcacao +
+                ", status=" + status +
+                '}';
     }
 
     public enum Status {

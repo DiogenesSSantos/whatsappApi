@@ -38,4 +38,11 @@ public class Numero  {
     }
 
 
+    @Override
+    public String toString() {
+        return "Numero{" +
+                "celular='" + celular + '\'' +
+                ", isWhatsapp=" + isWhatsapp +
+                '}';
+    }
 }
