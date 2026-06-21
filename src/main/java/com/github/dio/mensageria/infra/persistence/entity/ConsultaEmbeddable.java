@@ -41,6 +41,22 @@ public class ConsultaEmbeddable {
         return status;
     }
 
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setDataAtendimento(LocalDateTime dataAtendimento) {
+        this.dataAtendimento = dataAtendimento;
+    }
+
+    public void setDataMarcacao(LocalDateTime dataMarcacao) {
+        this.dataMarcacao = dataMarcacao;
+    }
+
+    public void setStatus(Consulta.Status status) {
+        this.status = status;
+    }
+
     @Embeddable
     public enum StatusEntity {
         MARCADO,

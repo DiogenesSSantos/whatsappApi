@@ -36,6 +36,10 @@ public class PacienteEntity {
     }
 
 
+    public Long getId() {
+        return id;
+    }
+
     public String getCodigo() {
         return codigo;
     }

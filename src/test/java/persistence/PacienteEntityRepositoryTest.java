@@ -1,6 +1,9 @@
 package persistence;
 
 
+import com.github.dio.mensageria.domain.consulta.Consulta;
+import com.github.dio.mensageria.domain.contato.Contato;
+import com.github.dio.mensageria.domain.contato.Numero;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.gateways.PacienteRepositoryJPA;
 import com.github.dio.mensageria.start;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,11 +30,30 @@ public class PacienteEntityRepositoryTest {
 
 
     @Test
-    void testando() {
+    void deveBuscarTodosPacientesQuandoChamarOmetodoBuscarTodos() {
         List<Paciente> pacienteList = pacienteRepositoryJPA.buscarTodos();
+
         assertNotNull(pacienteList);
         assertFalse(pacienteList.isEmpty());
-
-        System.out.println(pacienteList);
     }
+
+
+    @Test
+    void deveSalvarUmPacienteQuandoTodosOsCamposTiveremValido() {
+        Paciente paciente = Paciente.builder()
+                .nome("Diogenes dos Santos")
+                .contato(new Contato(List.of(new Numero("558184768748")), "Lidia queiroz"))
+                .consulta(new Consulta("Ortopedia", LocalDateTime.now().plusDays(2)))
+                .build();
+
+        Paciente pacienteBD = pacienteRepositoryJPA.salvar(paciente);
+
+        assertNotNull(pacienteBD);
+        assertEquals(pacienteBD.getCodigo(), paciente.getCodigo());
+        assertEquals(pacienteBD.getNome(), paciente.getNome());
+        assertNotNull(pacienteBD.getConsulta());
+        assertNotNull(pacienteBD.getContato());
+
+    }
+
 }
