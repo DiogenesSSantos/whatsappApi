@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.domain.consulta;
+package com.github.dio.mensageria.domain.paciente.consulta;
 
 public class DataPassadoException extends RuntimeException{
     public DataPassadoException(String message) {

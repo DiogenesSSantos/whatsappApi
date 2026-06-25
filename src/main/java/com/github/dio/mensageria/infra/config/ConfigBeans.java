@@ -1,6 +1,6 @@
 package com.github.dio.mensageria.infra.config;
 
-import com.github.dio.mensageria.application.gateways.PacienteRepository;
+import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
 import com.github.dio.mensageria.application.usecases.CriarPaciente;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.PacienteControllerMapper;
 import com.github.dio.mensageria.infra.gateways.PacienteEntityMapper;

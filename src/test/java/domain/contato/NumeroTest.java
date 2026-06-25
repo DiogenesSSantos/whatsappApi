@@ -1,7 +1,7 @@
 package domain.contato;
 
-import com.github.dio.mensageria.domain.contato.CelularInvalidoException;
-import com.github.dio.mensageria.domain.contato.Numero;
+import com.github.dio.mensageria.domain.paciente.contato.CelularInvalidoException;
+import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

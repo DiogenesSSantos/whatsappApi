@@ -1,16 +1,15 @@
 package domain.paciente;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
-import com.github.dio.mensageria.domain.contato.Contato;
-import com.github.dio.mensageria.domain.contato.Numero;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.contato.Contato;
+import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.domain.paciente.Paciente;
-import com.github.dio.mensageria.domain.consulta.DataPassadoException;
+import com.github.dio.mensageria.domain.paciente.consulta.DataPassadoException;
 import com.github.dio.mensageria.domain.paciente.PacienteBuilderException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
-import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,6 +1,6 @@
 package com.github.dio.mensageria.infra.gateways;
 
-import com.github.dio.mensageria.application.gateways.PacienteRepository;
+import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.persistence.PacienteEntityRepository;
 import com.github.dio.mensageria.infra.persistence.entity.PacienteEntity;

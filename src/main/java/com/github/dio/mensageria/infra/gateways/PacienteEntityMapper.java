@@ -1,7 +1,7 @@
 package com.github.dio.mensageria.infra.gateways;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
-import com.github.dio.mensageria.domain.contato.Contato;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.contato.Contato;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.persistence.entity.ConsultaEmbeddable;
 import com.github.dio.mensageria.infra.persistence.entity.ContatoEmbeddable;
@@ -33,10 +33,10 @@ public class PacienteEntityMapper {
 
     private Consulta consultaEntityToConsultaModel(ConsultaEmbeddable consultaEmbeddable) {
         var consulta = new Consulta();
-        consulta.setNome(consultaEmbeddable.getNome());
-        consulta.setDataAtendimento(consultaEmbeddable.getDataAtendimento());
-        consulta.setDataMarcacao(consultaEmbeddable.getDataMarcacao());
-        consulta.setStatus(consultaEmbeddable.getStatus());
+        consulta.atualizarNome(consultaEmbeddable.getNome());
+        consulta.atualizarDataAtendimento(consultaEmbeddable.getDataAtendimento());
+        consulta.atualizarDataMarcacao(consultaEmbeddable.getDataMarcacao());
+        consulta.atualizarStatus(consultaEmbeddable.getStatus());
 
         return consulta;
     }

@@ -1,5 +1,6 @@
-package com.github.dio.mensageria.domain.contato;
+package com.github.dio.mensageria.domain.paciente.contato;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class Contato {
 
 
     public List<Numero> getNumerosCelular() {
-        return numerosCelular;
+        return Collections.unmodifiableList(this.numerosCelular);
     }
 
 

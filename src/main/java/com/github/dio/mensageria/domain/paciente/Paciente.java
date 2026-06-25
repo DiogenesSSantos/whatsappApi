@@ -1,7 +1,7 @@
 package com.github.dio.mensageria.domain.paciente;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
-import com.github.dio.mensageria.domain.contato.Contato;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.contato.Contato;
 
 import java.util.UUID;
 

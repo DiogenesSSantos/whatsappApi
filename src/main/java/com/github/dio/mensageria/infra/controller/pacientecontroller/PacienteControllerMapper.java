@@ -1,8 +1,8 @@
 package com.github.dio.mensageria.infra.controller.pacientecontroller;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
-import com.github.dio.mensageria.domain.contato.Contato;
-import com.github.dio.mensageria.domain.contato.Numero;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.contato.Contato;
+import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.ConsultaDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.ContatoDTORequest;

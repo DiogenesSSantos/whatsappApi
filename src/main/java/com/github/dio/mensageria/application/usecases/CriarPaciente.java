@@ -1,9 +1,10 @@
 package com.github.dio.mensageria.application.usecases;
 
-import com.github.dio.mensageria.application.gateways.PacienteRepository;
+import com.github.dio.mensageria.application.gateways.input.CriarPacienteUseCase;
+import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 
-public class CriarPaciente {
+public class CriarPaciente implements CriarPacienteUseCase {
 
     private final PacienteRepository pacienteRepository;
 

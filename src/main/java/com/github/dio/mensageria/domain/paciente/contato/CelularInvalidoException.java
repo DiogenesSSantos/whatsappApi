@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.domain.contato;
+package com.github.dio.mensageria.domain.paciente.contato;
 
 public class CelularInvalidoException extends RuntimeException{
     public CelularInvalidoException(String message) {

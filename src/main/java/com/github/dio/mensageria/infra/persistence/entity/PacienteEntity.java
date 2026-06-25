@@ -1,8 +1,6 @@
 package com.github.dio.mensageria.infra.persistence.entity;
 
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
-import com.github.dio.mensageria.domain.contato.Contato;
 import jakarta.persistence.*;
 
 @Entity

@@ -10,14 +10,13 @@ import java.util.concurrent.ExecutionException;
  * Classe main para inicialização.
  *
  * @author diogenesssantos
- * @hidden
  */
 @EnableScheduling
 @SpringBootApplication
-public class start {
+public class Start {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        SpringApplication.run(start.class, args);
+        SpringApplication.run(Start.class, args);
     }
 
 }

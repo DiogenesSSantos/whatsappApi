@@ -1,4 +1,4 @@
-package com.github.dio.mensageria.domain.consulta;
+package com.github.dio.mensageria.domain.paciente.consulta;
 
 import java.time.LocalDateTime;
 
@@ -14,32 +14,32 @@ public class Consulta {
     }
 
     public Consulta(String consulta, LocalDateTime dataAtendimento) {
-        validarDataConsulta(dataAtendimento);
+        validarDataAtendimento(dataAtendimento);
         this.nome = consulta;
         this.dataAtendimento = dataAtendimento;
         this.dataMarcacao = LocalDateTime.now();
         this.status = Status.MARCADO;
     }
 
-    private void validarDataConsulta(LocalDateTime dataAtendimento) {
-        if (dataAtendimento.isBefore(LocalDateTime.now())) {
-            throw new DataPassadoException("Data consulta não pode ser no passado");
-        }
-    }
-
-    public void setNome(String nome) {
+    public void atualizarNome(String nome) {
+        if (nome == null || nome.isBlank()) throw new IllegalArgumentException("Nome da consulta não pode vázio");
         this.nome = nome;
     }
 
-    public void setDataAtendimento(LocalDateTime dataAtendimento) {
+    public void atualizarDataAtendimento(LocalDateTime dataAtendimento) {
+        validarDataAtendimento(dataAtendimento);
         this.dataAtendimento = dataAtendimento;
     }
 
-    public void setDataMarcacao(LocalDateTime dataMarcacao) {
+    public void atualizarDataMarcacao(LocalDateTime dataMarcacao) {
+        if (dataMarcacao.isAfter(this.dataAtendimento)) {
+            throw new IllegalArgumentException(
+                    "Data de marcação da consulta não pode ser depois da data de atendimento");
+        }
         this.dataMarcacao = dataMarcacao;
     }
 
-    public void setStatus(Status status) {
+    public void atualizarStatus(Status status) {
         this.status = status;
     }
 
@@ -70,10 +70,17 @@ public class Consulta {
                 '}';
     }
 
+
+    private void validarDataAtendimento(LocalDateTime dataAtendimento) {
+        if (dataAtendimento.isBefore(LocalDateTime.now())) {
+            throw new DataPassadoException("Data consulta não pode ser no passado");
+        }
+    }
+
     public enum Status {
         MARCADO,
         AGUARDANDO,
         NAO_POSSUI_WHATSAPP,
-        REJEITADO
+        REJEITADO;
     }
 }

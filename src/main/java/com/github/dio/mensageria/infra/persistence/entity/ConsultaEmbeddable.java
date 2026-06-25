@@ -1,6 +1,7 @@
 package com.github.dio.mensageria.infra.persistence.entity;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Embeddable
 public class ConsultaEmbeddable {
 
+    @Column(name = "consulta_nome")
     private String nome;
     private LocalDateTime dataAtendimento;
     private LocalDateTime dataMarcacao;

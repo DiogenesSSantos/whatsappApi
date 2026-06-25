@@ -1,6 +1,6 @@
 package domain.consulta;
 
-import com.github.dio.mensageria.domain.consulta.Consulta;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
