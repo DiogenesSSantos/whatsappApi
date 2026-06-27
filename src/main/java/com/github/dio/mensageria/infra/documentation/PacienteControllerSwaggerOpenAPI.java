@@ -18,7 +18,7 @@ public interface PacienteControllerSwaggerOpenAPI {
                     schema = @Schema(implementation = PacienteDTOResponse.class)))
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest);
+    ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception;
 
 
 }

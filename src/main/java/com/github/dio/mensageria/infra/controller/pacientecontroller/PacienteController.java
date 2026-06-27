@@ -32,9 +32,10 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
 
 
     @PostMapping
-    public ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) {
+    public ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
         Paciente paciente = mapper.dtoToModel(pacienteDTORequest);
         Paciente pacienteSalvoBD = criarPaciente.cadastrarPaciente(paciente);
+        notificarPaciente.enviar(pacienteSalvoBD);
         PacienteDTOResponse pacienteDTOResponse = mapper.modelToDTO(pacienteSalvoBD);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteDTOResponse);

@@ -1,20 +1,37 @@
 package com.github.dio.mensageria.infra.gateways;
 
 import com.github.dio.mensageria.application.gateways.output.Mensageria;
+import com.github.dio.mensageria.application.gateways.output.OllamaGateway;
 import com.github.dio.mensageria.domain.mensagem.ResultadoEnvio;
 import com.github.dio.mensageria.domain.paciente.Paciente;
-import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MensageriaN8N implements Mensageria {
+    private static final Logger log = LoggerFactory.getLogger(MensageriaN8N.class);
+    private final EvolutionGoClient client;
+    private final OllamaGateway ollamaGateway;
 
-    private final RestTemplate restTemplateN8N;
-
-    public MensageriaN8N(RestTemplate restTemplateN8N) {
-        this.restTemplateN8N = restTemplateN8N;
+    public MensageriaN8N(EvolutionGoClient client, OllamaGateway ollamaGateway) {
+        this.client = client;
+        this.ollamaGateway = ollamaGateway;
     }
 
+
     @Override
-    public ResultadoEnvio enviar(Paciente paciente) {
-        return null;
+    public ResultadoEnvio enviar(Paciente paciente) throws Exception {
+        try {
+            String nomePaciente = paciente.getNome();
+            String nomeConsulta = paciente.getConsulta().getNome();
+            String mensagem = ollamaGateway.gerarVariacaoMensagem(nomePaciente, nomeConsulta, paciente.getConsulta().getDataAtendimento());
+
+            paciente.getContato().getNumerosCelular().forEach(numero -> {
+                client.enviarTexto(numero.getCelular(), mensagem);
+            } );
+
+        } catch (Exception e) {
+            return new ResultadoEnvio.Falha("Algum motivo no fluxo do envio de mensagem");
+        }
+        return new ResultadoEnvio.Sucesso();
     }
 }

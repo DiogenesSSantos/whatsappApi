@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 @SpringBootApplication
 public class Start {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    public static void main(String[] args)  {
         SpringApplication.run(Start.class, args);
     }
 

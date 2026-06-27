@@ -10,7 +10,7 @@ public class NotificarPaciente  {
         this.mensageria = mensageria;
     }
 
-    public void enviar(Paciente paciente) {
+    public void enviar(Paciente paciente) throws Exception {
         mensageria.enviar(paciente);
     }
 }

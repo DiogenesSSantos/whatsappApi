@@ -69,6 +69,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>2.0.16</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
 
         <!-- Swagger/OpenAPI Documentation -->
         <dependency>
@@ -149,6 +154,11 @@
                             <groupId>com.github.auties00</groupId>
                             <artifactId>cobalt</artifactId>
                             <version>0.0.10</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                 </configuration>
