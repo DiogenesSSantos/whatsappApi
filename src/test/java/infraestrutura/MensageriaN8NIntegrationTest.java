@@ -10,6 +10,7 @@ import com.github.dio.mensageria.infra.gateways.MensageriaN8N;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import java.util.LinkedList;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @SpringBootTest(classes = Start.class)
+@ActiveProfiles("local")
 class MensageriaN8NIntegrationTest {
 
     @Autowired
