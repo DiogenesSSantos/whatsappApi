@@ -25,10 +25,17 @@ API REST para gerenciamento de pacientes e envio de notificações via WhatsApp,
 Principais responsabilidades:
 
 - **Cadastrar pacientes** com dados de contato (celular) e consulta agendada
-- **Enviar notificações** via WhatsApp utilizando integração com n8n (automação)
+- **Enviar notificações** via WhatsApp utilizando Evolution Go API
+- **Gerar mensagens personalizadas** via Ollama (LLM local)
 - **Persistir dados** de pacientes, contatos e consultas em MySQL
 - **Gerar relatórios** em PDF via JasperReports
 - **Documentação interativa** via Swagger/OpenAPI
+
+### Fluxo Principal
+
+```
+Paciente Cadastrado → Ollama gera variação da mensagem → Evolution Go envia WhatsApp
+```
 
 ---
 
@@ -39,10 +46,11 @@ Principais responsabilidades:
 | Linguagem | Java 21 |
 | Framework | Spring Boot 3.3.5 (Web, Data JPA) |
 | Build | Maven |
-| Banco de Dados | MySQL |
+| Banco de Dados | MySQL 8.0 |
 | Migrations | Flyway |
-| WhatsApp | Cobalt (Auties00) |
-| Automação externa | n8n (via RestTemplate) |
+| WhatsApp | Evolution Go API (whatsmeow) |
+| LLM Local | Ollama (llama3, mistral:7b) |
+| Automação externa | n8n (webhook receiver) |
 | Documentação API | SpringDoc OpenAPI (Swagger) |
 | Relatórios | JasperReports 7.0.1 |
 | Testes | JUnit 5 + Testcontainers |
@@ -75,7 +83,8 @@ O projeto segue **Clean Architecture** (Arquitetura Limpa / Hexagonal / Ports & 
 │  ┌──────┴──────────────────────┐  ┌────────┴────────┐  │
 │  │      Use Cases              │  │  Input Ports    │  │
 │  │  (CriarPaciente,            │  │  (interfaces)   │  │
-│  │   NotificarPaciente)        │  │                 │  │
+│  │   NotificarPaciente,        │  │                 │  │
+│  │   GeradorDeMensagemAI)      │  │                 │  │
 │  └─────────────────────────────┘  └─────────────────┘  │
 │                                                         │
 ├─────────────────────────────────────────────────────────┤
@@ -107,6 +116,14 @@ O projeto segue **Clean Architecture** (Arquitetura Limpa / Hexagonal / Ports & 
 HTTP Request → Controller → Mapper (DTO→Model) → Use Case → Gateway (Port) → Mapper (Model→Entity) → JPA Repository → MySQL
 ```
 
+### Fluxo de notificação
+
+```
+Paciente Cadastrado → NotificarPaciente → MensageriaN8N
+    → OllamaHttpGateway (gera variação da mensagem)
+    → EvolutionGoClient (envia via WhatsApp)
+```
+
 ---
 
 ## Estrutura do Projeto
@@ -132,17 +149,21 @@ src/main/java/com/github/dio/mensageria/
 ├── application/
 │   ├── usecases/
 │   │   ├── CriarPaciente.java          # Caso de uso: cadastrar paciente
-│   │   └── NotificarPaciente.java      # Caso de uso: enviar notificação WhatsApp
+│   │   ├── NotificarPaciente.java      # Caso de uso: enviar notificação WhatsApp
+│   │   └── GeradorDeMensagemAI.java    # Caso de uso: gerar mensagem via IA
 │   └── gateways/
 │       ├── input/
-│       │   └── CriarPacienteUseCase.java   # Porta de entrada (interface)
+│       │   ├── CriarPacienteUseCase.java    # Porta de entrada (interface)
+│       │   └── GerarMensagemAIUseCase.java  # Porta de entrada (interface)
 │       └── output/
-│           ├── PacienteRepository.java     # Porta de saída: persistência
-│           └── Mensageria.java             # Porta de saída: envio de mensagens
+│           ├── PacienteRepository.java      # Porta de saída: persistência
+│           ├── Mensageria.java              # Porta de saída: envio de mensagens
+│           └── OllamaGateway.java           # Porta de saída: geração de mensagens
 │
 ├── infra/
 │   ├── config/
 │   │   ├── ConfigBeans.java            # Wiring manual de beans (@Configuration)
+│   │   ├── EvolutionGoConfig.java      # Configuração Evolution Go (@ConfigurationProperties)
 │   │   └── SwaggerConfig.java          # Configuração OpenAPI/Swagger
 │   ├── controller/
 │   │   ├── pacientecontroller/
@@ -168,7 +189,12 @@ src/main/java/com/github/dio/mensageria/
 │   ├── gateways/
 │   │   ├── PacienteRepositoryJPA.java     # Implementação de PacienteRepository
 │   │   ├── PacienteEntityMapper.java      # Model ↔ Entity mapper
-│   │   └── MensageriaN8N.java            # Implementação de Mensageria (n8n)
+│   │   ├── MensageriaN8N.java            # Implementação de Mensageria (Evolution Go + Ollama)
+│   │   ├── EvolutionGoClient.java        # Cliente HTTP para Evolution Go API
+│   │   ├── OllamaHttpGateway.java        # Implementação de OllamaGateway (Java HttpClient)
+│   │   └── dto/
+│   │       ├── SendTextRequest.java      # DTO para envio de mensagem
+│   │       └── SendTextResponse.java     # DTO de resposta do envio
 │   └── persistence/
 │       ├── PacienteEntityRepository.java  # Spring Data JPA repository
 │       └── entity/
@@ -229,27 +255,49 @@ Exemplos válidos: `5581987654321`, `5511998765432`
 
 | Variável | Descrição | Exemplo |
 |---|---|---|
+| `DB_PASSWORD` | Senha do banco MySQL | `senha_aqui` |
+| `EVOLUTION_API_KEY` | Token da instância Evolution Go | `chave_aqui` |
 | `SPRING_DATASOURCE_URL` | JDBC URL do banco | `jdbc:mysql://localhost:3306/api-whatsapp-clean` |
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco | `root` |
-| `SPRING_DATASOURCE_PASSWORD` | Senha do banco | `****` |
 | `SPRING_PROFILES_ACTIVE` | Perfil ativo | `dev`, `prod`, `test` |
 
-### application.properties (padrão)
+### application.properties
 
 ```properties
 spring.application.name=whatsappApi
-server.port=8080
+server.port=8081
+
+# Banco de Dados
 spring.datasource.url=jdbc:mysql://localhost:3306/api-whatsapp-clean?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=${DB_PASSWORD:senha_aqui}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.show-sql=true
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+
+# Swagger/OpenAPI
+springdoc.api-docs.path=/v3/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.enabled=true
+
+# Ollama (LLM Local)
+ollama.url=http://localhost:11434
+ollama.model=llama3
+
+# Evolution Go (WhatsApp)
+evolution.go.base-url=http://localhost:8080
+evolution.go.api-key=${EVOLUTION_API_KEY:chave_aqui}
+evolution.go.instance=whatsapp-conexao
 ```
 
-### Swagger/OpenAPI
+### Documentação da API
 
 A documentação interativa da API fica disponível em:
 
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
-- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+- **Swagger UI**: `http://localhost:8081/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8081/v3/api-docs`
 
 ---
 
@@ -259,7 +307,57 @@ A documentação interativa da API fica disponível em:
 
 - Java 21+
 - Maven (wrapper incluso: `mvnw` / `mvnw.cmd`)
-- Docker (opcional, para banco local ou testes com Testcontainers)
+- Docker (para banco local, Evolution Go e Ollama)
+- Ollama (para geração de mensagens via IA)
+
+### Serviços externos
+
+O projeto depende dos seguintes serviços:
+
+| Serviço | Porta | Descrição |
+|---|---|---|
+| MySQL | 3306 | Banco de dados |
+| Evolution Go | 8080 | API WhatsApp |
+| Ollama | 11434 | LLM local para geração de mensagens |
+| n8n | 5678 | Automação (opcional) |
+
+### Iniciar serviços via Docker
+
+```bash
+# Criar rede para os serviços
+docker network create whatsapp-network
+
+# MySQL
+docker run -d --name mysql-whatsapp \
+  --network whatsapp-network \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=api-whatsapp-clean \
+  mysql:8.0
+
+# Evolution Go
+docker run -d --name evolution-go \
+  --network whatsapp-network \
+  -p 8080:8080 \
+  -e GLOBAL_API_KEY=sua_api_key \
+  evoapicloud/evolution-go:latest
+
+# Ollama
+docker run -d --name ollama \
+  --network whatsapp-network \
+  -p 11434:11434 \
+  ollama/ollama
+
+# Criar instância no Evolution Go (após iniciar)
+curl -X POST http://localhost:8080/instance/create \
+  -H "apikey: sua_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "whatsapp-conexao"}'
+
+# Baixar modelo no Ollama
+docker exec ollama ollama pull llama3
+docker exec ollama ollama pull mistral:7b
+```
 
 ### Build e execução (Windows)
 
@@ -286,6 +384,18 @@ java -jar target/whatsappApi-0.0.1-SNAPSHOT.jar
 
 ## Docker
 
+### Dockerfile
+
+```dockerfile
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+COPY target/*.jar /api.jar
+EXPOSE 8080
+CMD ["java", "-jar", "/api.jar"]
+```
+
 ### Build da imagem
 
 ```powershell
@@ -295,10 +405,12 @@ docker build -t whatsappapi .
 ### Executar
 
 ```powershell
-docker run -p 8080:8080 `
-  -e SPRING_DATASOURCE_URL=jdbc:mysql://host:3306/whatsappdb `
-  -e SPRING_DATASOURCE_USERNAME=myuser `
-  -e SPRING_DATASOURCE_PASSWORD=mypass `
+docker run -p 8081:8081 `
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://host:3306/api-whatsapp-clean `
+  -e SPRING_DATASOURCE_USERNAME=root `
+  -e SPRING_DATASOURCE_PASSWORD=sua_senha `
+  -e EVOLUTION_API_KEY=sua_api_key `
+  -e EVOLUTION_GO_BASE_URL=http://evolution-go:8080 `
   whatsappapi
 ```
 
@@ -307,6 +419,8 @@ docker run -p 8080:8080 `
 ## Endpoints
 
 ### `POST /api/pacientes` — Criar paciente
+
+Cria um paciente e envia notificação via WhatsApp automaticamente.
 
 **Request Body:**
 
@@ -371,32 +485,45 @@ docker run -p 8080:8080 `
 ### Executar teste específico
 
 ```powershell
-.\mvnw.cmd -Dtest=CriarPacienteUseCaseTest test
+.\mvnw.cmd -Dtest=PacienteTest test
+.\mvnw.cmd -Dtest=MensageriaN8NIntegrationTest test
 ```
 
 ### Estrutura dos testes
 
 ```
 src/test/java/
+├── config/
+│   └── TestcontainersConfig.java          # Configuração Testcontainers (MySQL)
 ├── domain/
-│   ├── PacienteTest.java              # Testes unitários do agregado
+│   ├── paciente/
+│   │   └── PacienteTest.java             # Testes unitários do agregado
 │   ├── consulta/
-│   │   └── ConsultaTest.java          # Testes unitários da consulta
+│   │   └── ConsultaTest.java             # Testes unitários da consulta
 │   └── contato/
-│       ├── ContatoTest.java           # Testes unitários do contato
-│       └── NumeroTest.java            # Testes unitários do número
+│       ├── ContatoTest.java              # Testes unitários do contato
+│       └── NumeroTest.java               # Testes unitários do número
 ├── persistence/
-│   └── PacienteEntityRepositoryTest.java  # Testes de repositório
+│   └── PacienteEntityRepositoryTest.java # Testes de repositório
 ├── integration/
 │   ├── usecase/
-│   │   └── CriarPacienteUseCaseTest.java  # Integração: caso de uso
+│   │   └── CriarPacienteUseCaseTest.java # Integração: caso de uso
 │   ├── mapper/
 │   │   └── PacienteControllerMapperTest.java  # Integração: mapper
 │   └── controller/
 │       └── PacienteControllerIntegrationTest.java  # Integração: controller
-└── config/
-    └── TestcontainersConfig.java      # Configuração Testcontainers (MySQL)
+└── infraestrutura/
+    ├── MensageriaN8NIntegrationTest.java  # Integração: envio WhatsApp
+    └── OllamaHttpGatewayIntegrationTest.java  # Integração: Ollama
 ```
+
+### Tipos de teste
+
+| Tipo | Descrição | Pré-requisitos |
+|---|---|---|
+| Unitário | Testes de domínio (Paciente, Consulta, Contato, Numero) | Nenhum |
+| Integração | Testes de repositório, controller, mapper | Docker (Testcontainers) |
+| Integração externa | Testes de envio WhatsApp e Ollama | Docker + Evolution Go + Ollama rodando |
 
 > **Nota**: Os testes de integração utilizam Testcontainers. O Docker deve estar disponível e rodando para que executem corretamente.
 
