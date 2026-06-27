@@ -7,6 +7,7 @@ import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.PacienteDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.PacienteDTOResponse;
 import com.github.dio.mensageria.infra.documentation.PacienteControllerSwaggerOpenAPI;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/pacientes")
@@ -29,8 +33,6 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         this.notificarPaciente = notificarPaciente;
     }
 
-
-
     @PostMapping
     public ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
         Paciente paciente = mapper.dtoToModel(pacienteDTORequest);
@@ -39,6 +41,32 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         PacienteDTOResponse pacienteDTOResponse = mapper.modelToDTO(pacienteSalvoBD);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pacienteDTOResponse);
+    }
+
+    @PostMapping("/lote")
+    @Operation(summary = "Enfileira múltiplos pacientes para notificação sequencial")
+    public ResponseEntity<Map<String, Object>> criarPacientesEmLote(@RequestBody List<PacienteDTORequest> pacientesDTO) {
+        List<Paciente> pacientes = pacientesDTO.stream()
+                .map(mapper::dtoToModel)
+                .toList();
+
+        List<Paciente> pacientesSalvos = pacientes.stream()
+                .map(paciente -> {
+                    try {
+                        return criarPaciente.cadastrarPaciente(paciente);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        notificarPaciente.enfileirar(pacientesSalvos);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
+                "mensagem", "Pacientes enfileirados para notificação",
+                "quantidade", pacientesSalvos.size(),
+                "filaTamanho", notificarPaciente.filaTamanho()
+        ));
     }
 
 }

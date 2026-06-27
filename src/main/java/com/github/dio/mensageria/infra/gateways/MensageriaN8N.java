@@ -25,9 +25,13 @@ public class MensageriaN8N implements Mensageria {
             String nomeConsulta = paciente.getConsulta().getNome();
             String mensagem = ollamaGateway.gerarVariacaoMensagem(nomePaciente, nomeConsulta, paciente.getConsulta().getDataAtendimento());
 
-            paciente.getContato().getNumerosCelular().forEach(numero -> {
-                client.enviarTexto(numero.getCelular(), mensagem);
-            } );
+            var numeros = paciente.getContato().getNumerosCelular();
+            for (int i = 0; i < numeros.size(); i++) {
+                if (i > 0) {
+                    Thread.sleep(60000);
+                }
+                client.enviarTexto(numeros.get(i).getCelular(), mensagem);
+            }
 
         } catch (Exception e) {
             return new ResultadoEnvio.Falha("Algum motivo no fluxo do envio de mensagem");

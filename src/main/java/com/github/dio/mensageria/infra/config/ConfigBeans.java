@@ -3,12 +3,12 @@ package com.github.dio.mensageria.infra.config;
 import com.github.dio.mensageria.application.gateways.output.Mensageria;
 import com.github.dio.mensageria.application.gateways.output.OllamaGateway;
 import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
+import com.github.dio.mensageria.application.services.FilaMensagem;
 import com.github.dio.mensageria.application.usecases.CriarPaciente;
 import com.github.dio.mensageria.application.usecases.NotificarPaciente;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.PacienteControllerMapper;
 import com.github.dio.mensageria.infra.gateways.*;
 import com.github.dio.mensageria.infra.persistence.PacienteEntityRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ConfigBeans {
 
+    private static final long DELAY_ENTRE_PACIENTES_MS = 60000;
 
     @Bean
     public PacienteControllerMapper pacienteControllerMapper() {
@@ -55,15 +56,19 @@ public class ConfigBeans {
         return new OllamaHttpGateway();
     }
 
-
     @Bean
     public Mensageria mensageria(EvolutionGoClient evolutionGoClient, OllamaGateway ollamaGateway) {
         return new MensageriaN8N(evolutionGoClient, ollamaGateway);
     }
 
     @Bean
-    public NotificarPaciente notificarPaciente(Mensageria mensageria) {
-        return new NotificarPaciente(mensageria);
+    public FilaMensagem filaMensagem(Mensageria mensageria) {
+        return new FilaMensagem(mensageria, DELAY_ENTRE_PACIENTES_MS);
+    }
+
+    @Bean
+    public NotificarPaciente notificarPaciente(Mensageria mensageria, FilaMensagem filaMensagem) {
+        return new NotificarPaciente(mensageria, filaMensagem);
     }
 
 }
