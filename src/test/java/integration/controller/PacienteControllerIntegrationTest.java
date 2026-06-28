@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,22 +63,21 @@ class PacienteControllerIntegrationTest {
                 )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.nome").value("João Silva"))
-                .andExpect(jsonPath("$.contato.bairro").value("Centro"))
-                .andExpect(jsonPath("$.contato.numerosCelular[0].celular").value("5581987654321"))
-                .andExpect(jsonPath("$.contato.numerosCelular[0].isWhatsapp").value(true))
-                .andExpect(jsonPath("$.consulta.nome").value("Consulta Clínica"))
-                .andExpect(jsonPath("$.consulta.status").value("MARCADO"))
+                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificação"))
+                .andExpect(jsonPath("$.paciente.nome").value("João Silva"))
+                .andExpect(jsonPath("$.paciente.contato.bairro").value("Centro"))
+                .andExpect(jsonPath("$.paciente.contato.numerosCelular[0].celular").value("5581987654321"))
+                .andExpect(jsonPath("$.paciente.contato.numerosCelular[0].isWhatsapp").value(true))
+                .andExpect(jsonPath("$.paciente.consulta.nome").value("Consulta Clínica"))
+                .andExpect(jsonPath("$.paciente.consulta.status").value("MARCADO"))
+                .andExpect(jsonPath("$.filaTamanho").isNumber())
                 .andDo(print())
                 .andReturn();
 
         String responseContent = getResponseContentUTF8(result);
-        PacienteDTOResponse response = objectMapper.readValue(responseContent, PacienteDTOResponse.class);
-
-        assertNotNull(response);
-        assertEquals("João Silva", response.nome());
-        assertNotNull(response.contato());
-        assertNotNull(response.consulta());
+        assertNotNull(responseContent);
+        assertTrue(responseContent.contains("Paciente enfileirado para notificação"));
+        assertTrue(responseContent.contains("João Silva"));
     }
 
 
@@ -127,13 +127,11 @@ class PacienteControllerIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                 ).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.contato.numerosCelular.length()").value(4))
+                .andExpect(jsonPath("$.paciente.contato.numerosCelular.length()").value(4))
                 .andReturn();
 
         String responseContent = result.getResponse().getContentAsString();
-        PacienteDTOResponse response = objectMapper.readValue(responseContent, PacienteDTOResponse.class);
-
-        assertEquals(4, response.contato().numerosCelular().size());
+        assertTrue(responseContent.contains("4"));
     }
 
     /**
@@ -274,7 +272,7 @@ class PacienteControllerIntegrationTest {
                 post(API_PACIENTES)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(status().isBadRequest());
+        ).andExpect(status().isUnprocessableEntity());
     }
 
 
@@ -294,9 +292,40 @@ class PacienteControllerIntegrationTest {
 
         String responseContent = result.getResponse().getContentAsString();
         assertFalse(responseContent.isEmpty());
+        assertTrue(responseContent.contains("mensagem"));
+        assertTrue(responseContent.contains("paciente"));
+        assertTrue(responseContent.contains("filaTamanho"));
         assertTrue(responseContent.contains("nome"));
         assertTrue(responseContent.contains("contato"));
         assertTrue(responseContent.contains("consulta"));
+    }
+
+    /**
+     * Teste de sucesso: Criar pacientes em lote
+     * Esperado: Todos enfileirados com tamanho da fila correto
+     */
+    @Test
+    void deveEnfileirarPacientesEmLoteComSucesso() throws Exception {
+        PacienteDTORequest paciente1 = criarPacienteDTORequestComNome("Paciente Lote 1");
+        PacienteDTORequest paciente2 = criarPacienteDTORequestComNome("Paciente Lote 2");
+        PacienteDTORequest paciente3 = criarPacienteDTORequestComNome("Paciente Lote 3");
+
+        List<PacienteDTORequest> lote = List.of(paciente1, paciente2, paciente3);
+
+        MvcResult result = mockMvc.perform(
+                        post(API_PACIENTES + "/lote")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(lote))
+                )
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.mensagem").value("Pacientes enfileirados para notificação"))
+                .andExpect(jsonPath("$.quantidade").value(3))
+                .andExpect(jsonPath("$.filaTamanho").isNumber())
+                .andDo(print())
+                .andReturn();
+
+        String responseContent = getResponseContentUTF8(result);
+        assertTrue(responseContent.contains("3"));
     }
 
 

@@ -41,8 +41,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataPassadoException.class)
     public ResponseEntity<ErrorBodyResponse> handleDataPassado(DataPassadoException ex) {
-        ErrorBodyResponse body = new ErrorBodyResponse(OffsetDateTime.now(), HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        ErrorBodyResponse body = new ErrorBodyResponse(OffsetDateTime.now(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(body);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

@@ -18,7 +18,7 @@ public class Contato {
             return;
         }
 
-        this.numerosCelular = numerosCelular;
+        this.numerosCelular = new LinkedList<>(numerosCelular);
     }
 
 

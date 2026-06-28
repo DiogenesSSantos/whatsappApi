@@ -4,6 +4,8 @@ import com.github.dio.mensageria.application.gateways.input.CriarPacienteUseCase
 import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 
+import java.util.List;
+
 public class CriarPaciente implements CriarPacienteUseCase {
 
     private final PacienteRepository pacienteRepository;
@@ -16,6 +18,8 @@ public class CriarPaciente implements CriarPacienteUseCase {
         return pacienteRepository.salvar(paciente);
     }
 
-
+    public List<Paciente> buscarTodos() {
+        return pacienteRepository.buscarTodos();
+    }
 
 }

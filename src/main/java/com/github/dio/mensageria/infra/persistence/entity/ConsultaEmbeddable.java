@@ -59,11 +59,4 @@ public class ConsultaEmbeddable {
         this.status = status;
     }
 
-    @Embeddable
-    public enum StatusEntity {
-        MARCADO,
-        AGUARDANDO,
-        NAO_POSSUI_WHATSAPP,
-        REJEITADO
-    }
 }

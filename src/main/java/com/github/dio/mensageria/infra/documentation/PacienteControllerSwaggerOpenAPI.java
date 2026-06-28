@@ -9,16 +9,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Map;
+
 public interface PacienteControllerSwaggerOpenAPI {
 
     @Operation(summary = "Criar novo paciente",
-            description = "Cria um novo paciente com seus dados de contato e consulta")
-    @ApiResponse(responseCode = "201", description = "Paciente criado com sucesso",
-            content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PacienteDTOResponse.class)))
+            description = "Cria um novo paciente e enfileira para notificação")
+    @ApiResponse(responseCode = "201", description = "Paciente criado e enfileirado com sucesso")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception;
+    ResponseEntity<Map<String, Object>> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception;
 
 
 }

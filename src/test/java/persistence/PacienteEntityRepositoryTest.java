@@ -6,7 +6,7 @@ import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.domain.paciente.contato.Contato;
 import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.domain.paciente.Paciente;
-import com.github.dio.mensageria.infra.gateways.PacienteRepositoryJPA;
+import com.github.dio.mensageria.infra.gateways.PacienteRepositoryJPAGateway;
 import config.TestcontainersConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PacienteEntityRepositoryTest {
 
     @Autowired
-    private PacienteRepositoryJPA pacienteRepositoryJPA;
+    private PacienteRepositoryJPAGateway pacienteRepositoryJPAGateway;
 
 
     @Test
     void deveBuscarTodosPacientesQuandoChamarOmetodoBuscarTodos() {
-        List<Paciente> pacienteList = pacienteRepositoryJPA.buscarTodos();
+        List<Paciente> pacienteList = pacienteRepositoryJPAGateway.buscarTodos();
 
         assertNotNull(pacienteList);
         assertFalse(pacienteList.isEmpty());
@@ -45,7 +45,7 @@ public class PacienteEntityRepositoryTest {
                 .consulta(new Consulta("Ortopedia", LocalDateTime.now().plusDays(2)))
                 .build();
 
-        Paciente pacienteBD = pacienteRepositoryJPA.salvar(paciente);
+        Paciente pacienteBD = pacienteRepositoryJPAGateway.salvar(paciente);
 
         assertNotNull(pacienteBD);
         assertEquals(pacienteBD.getCodigo(), paciente.getCodigo());

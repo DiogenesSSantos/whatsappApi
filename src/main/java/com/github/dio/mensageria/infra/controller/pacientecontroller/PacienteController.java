@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,14 +34,27 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         this.notificarPaciente = notificarPaciente;
     }
 
+    @GetMapping
+    @Operation(summary = "Lista todos os pacientes")
+    public ResponseEntity<List<PacienteDTOResponse>> buscarTodos() {
+        List<PacienteDTOResponse> pacientes = criarPaciente.buscarTodos().stream()
+                .map(mapper::modelToDTO)
+                .toList();
+        return ResponseEntity.ok(pacientes);
+    }
+
     @PostMapping
-    public ResponseEntity<PacienteDTOResponse> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
+    @Operation(summary = "Cadastra um paciente e enfileira notificação")
+    public ResponseEntity<Map<String, Object>> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
         Paciente paciente = mapper.dtoToModel(pacienteDTORequest);
         Paciente pacienteSalvoBD = criarPaciente.cadastrarPaciente(paciente);
-        notificarPaciente.enviar(pacienteSalvoBD);
-        PacienteDTOResponse pacienteDTOResponse = mapper.modelToDTO(pacienteSalvoBD);
+        notificarPaciente.enfileirar(pacienteSalvoBD);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteDTOResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "mensagem", "Paciente enfileirado para notificação",
+                "paciente", mapper.modelToDTO(pacienteSalvoBD),
+                "filaTamanho", notificarPaciente.filaTamanho()
+        ));
     }
 
     @PostMapping("/lote")
