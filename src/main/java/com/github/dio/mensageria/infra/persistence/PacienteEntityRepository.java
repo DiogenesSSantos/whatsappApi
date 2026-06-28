@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,8 @@ public interface PacienteEntityRepository extends JpaRepository<PacienteEntity, 
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
             AND (:status IS NULL OR p.consulta.status = :status)
+            AND (:dataMarcacaoInicio IS NULL OR p.consulta.dataMarcacao >= :dataMarcacaoInicio)
+            AND (:dataAtendimentoInicio IS NULL OR p.consulta.dataAtendimento >= :dataAtendimentoInicio)
             """,
             countQuery = """
             SELECT COUNT(p) FROM PacienteEntity p
@@ -39,12 +42,16 @@ public interface PacienteEntityRepository extends JpaRepository<PacienteEntity, 
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
             AND (:status IS NULL OR p.consulta.status = :status)
+            AND (:dataMarcacaoInicio IS NULL OR p.consulta.dataMarcacao >= :dataMarcacaoInicio)
+            AND (:dataAtendimentoInicio IS NULL OR p.consulta.dataAtendimento >= :dataAtendimentoInicio)
             """)
     Page<PacienteEntity> buscarComFiltros(
             @Param("nome") String nome,
             @Param("bairro") String bairro,
             @Param("consultaNome") String consultaNome,
             @Param("status") Consulta.Status status,
+            @Param("dataMarcacaoInicio") LocalDateTime dataMarcacaoInicio,
+            @Param("dataAtendimentoInicio") LocalDateTime dataAtendimentoInicio,
             Pageable pageable);
 
     @Transactional

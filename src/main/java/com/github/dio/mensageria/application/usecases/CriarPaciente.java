@@ -7,6 +7,7 @@ import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +27,9 @@ public class CriarPaciente implements CriarPacienteUseCase {
         return pacienteRepository.buscarTodos();
     }
 
-    public Page<Paciente> buscarComFiltros(String nome, String bairro, String consultaNome, Consulta.Status status, Pageable pageable) {
-        return pacienteRepository.buscarComFiltros(nome, bairro, consultaNome, status, pageable);
+    public Page<Paciente> buscarComFiltros(String nome, String bairro, String consultaNome, Consulta.Status status,
+                                          LocalDateTime dataMarcacaoInicio, LocalDateTime dataAtendimentoInicio, Pageable pageable) {
+        return pacienteRepository.buscarComFiltros(nome, bairro, consultaNome, status, dataMarcacaoInicio, dataAtendimentoInicio, pageable);
     }
 
     public Optional<Paciente> buscarPorCodigo(String codigo) {

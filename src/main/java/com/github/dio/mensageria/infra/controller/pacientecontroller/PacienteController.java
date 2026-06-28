@@ -50,6 +50,8 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
             @RequestParam(required = false) String bairro,
             @RequestParam(required = false) String consultaNome,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String dataMarcacaoInicio,
+            @RequestParam(required = false) String dataAtendimentoInicio,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
@@ -62,8 +64,11 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
             }
         }
 
+        java.time.LocalDateTime dataMarcacao = parseDataInicio(dataMarcacaoInicio);
+        java.time.LocalDateTime dataAtendimento = parseDataInicio(dataAtendimentoInicio);
+
         var pageable = PageRequest.of(page, size, Sort.by("nome"));
-        var resultado = criarPaciente.buscarComFiltros(nome, bairro, consultaNome, statusEnum, pageable);
+        var resultado = criarPaciente.buscarComFiltros(nome, bairro, consultaNome, statusEnum, dataMarcacao, dataAtendimento, pageable);
 
         var conteudo = resultado.getContent().stream()
                 .map(mapper::modelToDTO)
@@ -75,6 +80,15 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
                 resultado.getSize(),
                 resultado.getTotalElements(),
                 resultado.getTotalPages()));
+    }
+
+    private java.time.LocalDateTime parseDataInicio(String data) {
+        if (data == null || data.isBlank()) return null;
+        try {
+            return java.time.LocalDate.parse(data).atStartOfDay();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @GetMapping("/{codigo}")
