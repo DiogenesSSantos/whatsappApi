@@ -2,6 +2,7 @@ package com.github.dio.mensageria.infra.gateways;
 
 import com.github.dio.mensageria.application.gateways.output.PacienteRepository;
 import com.github.dio.mensageria.domain.paciente.Paciente;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.infra.persistence.PacienteEntityRepository;
 import com.github.dio.mensageria.infra.persistence.entity.PacienteEntity;
 import org.springframework.data.domain.Page;
@@ -45,7 +46,7 @@ public class PacienteRepositoryJPAGateway implements PacienteRepository {
     }
 
     @Override
-    public Page<Paciente> buscarComFiltros(String nome, String bairro, String consultaNome, String status, Pageable pageable) {
+    public Page<Paciente> buscarComFiltros(String nome, String bairro, String consultaNome, Consulta.Status status, Pageable pageable) {
         return pacienteEntityRepository.buscarComFiltros(nome, bairro, consultaNome, status, pageable)
                 .map(mapper::entityToModel);
     }

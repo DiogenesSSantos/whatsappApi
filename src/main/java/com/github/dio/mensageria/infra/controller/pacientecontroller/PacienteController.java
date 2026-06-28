@@ -53,8 +53,17 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
+        Consulta.Status statusEnum = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                statusEnum = Consulta.Status.valueOf(status);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
         var pageable = PageRequest.of(page, size, Sort.by("nome"));
-        var resultado = criarPaciente.buscarComFiltros(nome, bairro, consultaNome, status, pageable);
+        var resultado = criarPaciente.buscarComFiltros(nome, bairro, consultaNome, statusEnum, pageable);
 
         var conteudo = resultado.getContent().stream()
                 .map(mapper::modelToDTO)

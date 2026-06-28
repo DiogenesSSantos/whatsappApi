@@ -1,5 +1,6 @@
 package com.github.dio.mensageria.infra.persistence;
 
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.infra.persistence.entity.PacienteEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,20 +31,20 @@ public interface PacienteEntityRepository extends JpaRepository<PacienteEntity, 
             WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT(:nome, '%')))
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
-            AND (:status IS NULL OR p.consulta.status.name() = :status)
+            AND (:status IS NULL OR p.consulta.status = :status)
             """,
             countQuery = """
             SELECT COUNT(p) FROM PacienteEntity p
             WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT(:nome, '%')))
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
-            AND (:status IS NULL OR p.consulta.status.name() = :status)
+            AND (:status IS NULL OR p.consulta.status = :status)
             """)
     Page<PacienteEntity> buscarComFiltros(
             @Param("nome") String nome,
             @Param("bairro") String bairro,
             @Param("consultaNome") String consultaNome,
-            @Param("status") String status,
+            @Param("status") Consulta.Status status,
             Pageable pageable);
 
     @Transactional
