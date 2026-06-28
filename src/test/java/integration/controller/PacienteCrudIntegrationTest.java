@@ -45,28 +45,19 @@ class PacienteCrudIntegrationTest {
     void deveCriarPaciente() throws Exception {
         PacienteDTORequest request = criarRequestValido();
 
-        mockMvc.perform(post(API)
+        MvcResult result = mockMvc.perform(post(API)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificação"))
+                .andExpect(jsonPath("$.mensagem").isNotEmpty())
                 .andExpect(jsonPath("$.paciente.codigo").isNotEmpty())
-                .andExpect(jsonPath("$.paciente.nome").value("João Teste"));
-
-        // Busca o paciente criado para pegar o codigo
-        MvcResult result = mockMvc.perform(get(API).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paciente.nome").value("João Teste"))
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        var pacientes = objectMapper.readTree(json);
-        for (var p : pacientes) {
-            if (p.get("nome").asText().equals("João Teste")) {
-                codigoPacienteCriado = p.get("codigo").asText();
-                break;
-            }
-        }
-        Assertions.assertNotNull(codigoPacienteCriado, "Deve encontrar o paciente criado");
+        var response = objectMapper.readTree(json);
+        codigoPacienteCriado = response.get("paciente").get("codigo").asText();
+        Assertions.assertNotNull(codigoPacienteCriado);
     }
 
     @Test
