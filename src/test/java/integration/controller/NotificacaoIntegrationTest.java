@@ -68,7 +68,7 @@ class NotificacaoIntegrationTest {
                                 .content(objectMapper.writeValueAsString(request))
                 )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificação"))
+                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificacao"))
                 .andDo(print());
 
         boolean processado = latch.await(10, TimeUnit.SECONDS);
@@ -102,7 +102,7 @@ class NotificacaoIntegrationTest {
                                 .content(objectMapper.writeValueAsString(lote))
                 )
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.mensagem").value("Pacientes enfileirados para notificação"))
+                .andExpect(jsonPath("$.mensagem").value("Pacientes enfileirados para notificacao"))
                 .andExpect(jsonPath("$.quantidade").value(quantidadePacientes))
                 .andDo(print());
 

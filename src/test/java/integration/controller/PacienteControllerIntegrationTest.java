@@ -63,7 +63,7 @@ class PacienteControllerIntegrationTest {
                 )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificação"))
+                .andExpect(jsonPath("$.mensagem").value("Paciente enfileirado para notificacao"))
                 .andExpect(jsonPath("$.paciente.nome").value("João Silva"))
                 .andExpect(jsonPath("$.paciente.contato.bairro").value("Centro"))
                 .andExpect(jsonPath("$.paciente.contato.numerosCelular[0].celular").value("5581987654321"))
@@ -76,7 +76,7 @@ class PacienteControllerIntegrationTest {
 
         String responseContent = getResponseContentUTF8(result);
         assertNotNull(responseContent);
-        assertTrue(responseContent.contains("Paciente enfileirado para notificação"));
+        assertTrue(responseContent.contains("Paciente enfileirado para notificacao"));
         assertTrue(responseContent.contains("João Silva"));
     }
 
@@ -318,7 +318,7 @@ class PacienteControllerIntegrationTest {
                                 .content(objectMapper.writeValueAsString(lote))
                 )
                 .andExpect(status().isAccepted())
-                .andExpect(jsonPath("$.mensagem").value("Pacientes enfileirados para notificação"))
+                .andExpect(jsonPath("$.mensagem").value("Pacientes enfileirados para notificacao"))
                 .andExpect(jsonPath("$.quantidade").value(3))
                 .andExpect(jsonPath("$.filaTamanho").isNumber())
                 .andDo(print())
