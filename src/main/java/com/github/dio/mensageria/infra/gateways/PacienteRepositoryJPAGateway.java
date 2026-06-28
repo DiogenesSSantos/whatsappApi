@@ -6,6 +6,7 @@ import com.github.dio.mensageria.infra.persistence.PacienteEntityRepository;
 import com.github.dio.mensageria.infra.persistence.entity.PacienteEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PacienteRepositoryJPAGateway implements PacienteRepository {
 
@@ -17,23 +18,44 @@ public class PacienteRepositoryJPAGateway implements PacienteRepository {
         this.mapper = mapper;
     }
 
-
     @Override
     public Paciente salvar(Paciente paciente) {
+        var existente = pacienteEntityRepository.findByCodigo(paciente.getCodigo());
+
+        if (existente.isPresent()) {
+            var entity = existente.get();
+            entity = mapper.atualizarEntity(entity, paciente);
+            var pacienteBD = pacienteEntityRepository.save(entity);
+            return mapper.entityToModel(pacienteBD);
+        }
+
         var pacienteConvertido = mapper.modelToEntity(paciente);
         var pacienteBD = pacienteEntityRepository.save(pacienteConvertido);
-
         return mapper.entityToModel(pacienteBD);
     }
 
     @Override
     public List<Paciente> buscarTodos() {
         List<PacienteEntity> pacientesBD = pacienteEntityRepository.findAll();
-
         return pacientesBD.stream()
                 .map(mapper::entityToModel)
                 .toList();
     }
 
+    @Override
+    public Optional<Paciente> buscarPorCodigo(String codigo) {
+        return pacienteEntityRepository.findByCodigo(codigo)
+                .map(mapper::entityToModel);
+    }
+
+    @Override
+    public boolean deletar(String codigo) {
+        return pacienteEntityRepository.deleteByCodigo(codigo) > 0;
+    }
+
+    @Override
+    public boolean atualizarStatus(String codigo, String status) {
+        return pacienteEntityRepository.atualizarStatusByCodigo(codigo, status) > 0;
+    }
 
 }

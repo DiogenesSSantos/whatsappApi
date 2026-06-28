@@ -21,6 +21,15 @@ public class Consulta {
         this.status = Status.MARCADO;
     }
 
+    public static Consulta deDadosPersistidos(String nome, LocalDateTime dataAtendimento, LocalDateTime dataMarcacao, Status status) {
+        Consulta c = new Consulta();
+        c.nome = nome;
+        c.dataAtendimento = dataAtendimento;
+        c.dataMarcacao = dataMarcacao;
+        c.status = status;
+        return c;
+    }
+
     public void atualizarNome(String nome) {
         if (nome == null || nome.isBlank()) throw new IllegalArgumentException("Nome da consulta não pode vázio");
         this.nome = nome;

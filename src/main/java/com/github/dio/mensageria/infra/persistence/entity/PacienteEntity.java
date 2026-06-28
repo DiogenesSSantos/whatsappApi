@@ -53,4 +53,16 @@ public class PacienteEntity {
     public ConsultaEmbeddable getConsulta() {
         return consulta;
     }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setContato(ContatoEmbeddable contato) {
+        this.contato = contato;
+    }
+
+    public void setConsulta(ConsultaEmbeddable consulta) {
+        this.consulta = consulta;
+    }
 }

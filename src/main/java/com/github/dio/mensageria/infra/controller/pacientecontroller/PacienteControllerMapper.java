@@ -29,19 +29,27 @@ public class PacienteControllerMapper {
 
 
     public PacienteDTOResponse modelToDTO(Paciente paciente) {
-        return new PacienteDTOResponse(paciente.getNome(),
+        return new PacienteDTOResponse(
+                paciente.getCodigo(),
+                paciente.getNome(),
                 contatoModelToContatoDTO(paciente.getContato()),
                 consultaModelToConsultaDTO(paciente.getConsulta()));
     }
 
 
-    private Consulta consultaDTOToConsultaModel(ConsultaDTORequest consultaDTORequest) {
-        return new Consulta(consultaDTORequest.nome(),
+    public Consulta consultaDTOToConsultaModel(ConsultaDTORequest consultaDTORequest) {
+        Consulta consulta = new Consulta(consultaDTORequest.nome(),
                 consultaDTORequest.dataAtendimento());
 
+        if (consultaDTORequest.status() != null) {
+            consulta.atualizarStatus(
+                    Consulta.Status.valueOf(consultaDTORequest.status().name()));
+        }
+
+        return consulta;
     }
 
-    private Contato contatoDTOToContatoModel(ContatoDTORequest contatoDTORequest) {
+    public Contato contatoDTOToContatoModel(ContatoDTORequest contatoDTORequest) {
         List<Numero> numerosLista = contatoDTORequest.numerosCelular()
                 .stream()
                 .map(numeroDTORequest -> new Numero(numeroDTORequest.celular()))

@@ -31,14 +31,21 @@ public class PacienteEntityMapper {
     }
 
 
-    private Consulta consultaEntityToConsultaModel(ConsultaEmbeddable consultaEmbeddable) {
-        var consulta = new Consulta();
-        consulta.atualizarNome(consultaEmbeddable.getNome());
-        consulta.atualizarDataAtendimento(consultaEmbeddable.getDataAtendimento());
-        consulta.atualizarDataMarcacao(consultaEmbeddable.getDataMarcacao());
-        consulta.atualizarStatus(consultaEmbeddable.getStatus());
+    public PacienteEntity atualizarEntity(PacienteEntity entity, Paciente paciente) {
+        entity.setNome(paciente.getNome());
+        entity.setContato(contatoToContatoEntity(paciente.getContato()));
+        entity.setConsulta(consultaToConsultaEmbeddable(paciente.getConsulta()));
+        return entity;
+    }
 
-        return consulta;
+
+    private Consulta consultaEntityToConsultaModel(ConsultaEmbeddable consultaEmbeddable) {
+        return Consulta.deDadosPersistidos(
+                consultaEmbeddable.getNome(),
+                consultaEmbeddable.getDataAtendimento(),
+                consultaEmbeddable.getDataMarcacao(),
+                consultaEmbeddable.getStatus()
+        );
     }
 
     private ConsultaEmbeddable consultaToConsultaEmbeddable(Consulta consulta) {

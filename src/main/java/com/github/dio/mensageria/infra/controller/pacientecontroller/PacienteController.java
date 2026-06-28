@@ -4,18 +4,16 @@ package com.github.dio.mensageria.infra.controller.pacientecontroller;
 import com.github.dio.mensageria.application.usecases.CriarPaciente;
 import com.github.dio.mensageria.application.usecases.NotificarPaciente;
 import com.github.dio.mensageria.domain.paciente.Paciente;
+import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.PacienteDTORequest;
+import com.github.dio.mensageria.infra.controller.pacientecontroller.request.StatusDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.PacienteDTOResponse;
 import com.github.dio.mensageria.infra.documentation.PacienteControllerSwaggerOpenAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -43,6 +41,14 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         return ResponseEntity.ok(pacientes);
     }
 
+    @GetMapping("/{codigo}")
+    @Operation(summary = "Busca um paciente pelo código")
+    public ResponseEntity<PacienteDTOResponse> buscarPorCodigo(@PathVariable String codigo) {
+        return criarPaciente.buscarPorCodigo(codigo)
+                .map(paciente -> ResponseEntity.ok(mapper.modelToDTO(paciente)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
     @Operation(summary = "Cadastra um paciente e enfileira notificação")
     public ResponseEntity<Map<String, Object>> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
@@ -55,6 +61,55 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
                 "paciente", mapper.modelToDTO(pacienteSalvoBD),
                 "filaTamanho", notificarPaciente.filaTamanho()
         ));
+    }
+
+    @PutMapping("/{codigo}")
+    @Operation(summary = "Atualiza os dados de um paciente")
+    public ResponseEntity<PacienteDTOResponse> atualizar(@PathVariable String codigo, @RequestBody PacienteDTORequest pacienteDTORequest) {
+        return criarPaciente.buscarPorCodigo(codigo)
+                .map(existente -> {
+                    Paciente atualizado = Paciente.builder()
+                            .codigo(codigo)
+                            .nome(pacienteDTORequest.nome())
+                            .contato(mapper.contatoDTOToContatoModel(pacienteDTORequest.contato()))
+                            .consulta(mapper.consultaDTOToConsultaModel(pacienteDTORequest.consulta()))
+                            .build();
+                    Paciente salvo = criarPaciente.cadastrarPaciente(atualizado);
+                    return ResponseEntity.ok(mapper.modelToDTO(salvo));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{codigo}/status")
+    @Operation(summary = "Atualiza apenas o status da consulta de um paciente")
+    public ResponseEntity<PacienteDTOResponse> atualizarStatus(@PathVariable String codigo, @RequestBody Map<String, String> body) {
+        String statusStr = body.get("status");
+        if (statusStr == null || statusStr.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Consulta.Status status;
+        try {
+            status = Consulta.Status.valueOf(statusStr);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean atualizado = criarPaciente.atualizarStatus(codigo, status.name());
+        if (!atualizado) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return criarPaciente.buscarPorCodigo(codigo)
+                .map(paciente -> ResponseEntity.ok(mapper.modelToDTO(paciente)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{codigo}")
+    @Operation(summary = "Exclui um paciente")
+    public ResponseEntity<Void> excluir(@PathVariable String codigo) {
+        boolean deletado = criarPaciente.deletar(codigo);
+        return deletado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/lote")
