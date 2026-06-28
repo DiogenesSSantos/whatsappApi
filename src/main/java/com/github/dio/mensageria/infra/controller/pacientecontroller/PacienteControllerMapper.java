@@ -7,7 +7,7 @@ import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.ConsultaDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.ContatoDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.PacienteDTORequest;
-import com.github.dio.mensageria.infra.controller.pacientecontroller.request.StatusDTORequest;
+import com.github.dio.mensageria.infra.controller.pacientecontroller.response.StatusDTOResponse;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.ConsultaDTOResponse;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.ContatoDTOResponse;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.NumeroDTOResponse;
@@ -75,7 +75,7 @@ public class PacienteControllerMapper {
         return new ConsultaDTOResponse(consulta.getNome(),
                 consulta.getDataAtendimento(),
                 consulta.getDataMarcacao(),
-                StatusDTORequest.valueOf(consulta.getStatus().name()));
+                StatusDTOResponse.valueOf(consulta.getStatus().name()));
 
     }
 
