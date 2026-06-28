@@ -65,24 +65,20 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
 
     @PutMapping("/{codigo}")
     @Operation(summary = "Atualiza os dados de um paciente")
-    public ResponseEntity<PacienteDTOResponse> atualizar(@PathVariable String codigo, @RequestBody PacienteDTORequest pacienteDTORequest) {
-        return criarPaciente.buscarPorCodigo(codigo)
-                .map(existente -> {
-                    Paciente atualizado = Paciente.builder()
-                            .codigo(codigo)
-                            .nome(pacienteDTORequest.nome())
-                            .contato(mapper.contatoDTOToContatoModel(pacienteDTORequest.contato()))
-                            .consulta(mapper.consultaDTOToConsultaModel(pacienteDTORequest.consulta()))
-                            .build();
-                    Paciente salvo = criarPaciente.cadastrarPaciente(atualizado);
-                    return ResponseEntity.ok(mapper.modelToDTO(salvo));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Void> atualizar(@PathVariable String codigo, @RequestBody PacienteDTORequest pacienteDTORequest) {
+        Paciente atualizado = Paciente.builder()
+                .codigo(codigo)
+                .nome(pacienteDTORequest.nome())
+                .contato(mapper.contatoDTOToContatoModel(pacienteDTORequest.contato()))
+                .consulta(mapper.consultaDTOToConsultaForUpdate(pacienteDTORequest.consulta()))
+                .build();
+        criarPaciente.cadastrarPaciente(atualizado);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{codigo}/status")
     @Operation(summary = "Atualiza apenas o status da consulta de um paciente")
-    public ResponseEntity<PacienteDTOResponse> atualizarStatus(@PathVariable String codigo, @RequestBody Map<String, String> body) {
+    public ResponseEntity<Void> atualizarStatus(@PathVariable String codigo, @RequestBody Map<String, String> body) {
         String statusStr = body.get("status");
         if (statusStr == null || statusStr.isBlank()) {
             return ResponseEntity.badRequest().build();
@@ -96,13 +92,7 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         }
 
         boolean atualizado = criarPaciente.atualizarStatus(codigo, status.name());
-        if (!atualizado) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return criarPaciente.buscarPorCodigo(codigo)
-                .map(paciente -> ResponseEntity.ok(mapper.modelToDTO(paciente)))
-                .orElse(ResponseEntity.notFound().build());
+        return atualizado ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{codigo}")

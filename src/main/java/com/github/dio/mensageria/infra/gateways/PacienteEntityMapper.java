@@ -9,6 +9,7 @@ import com.github.dio.mensageria.infra.persistence.entity.NumeroEmbeddable;
 import com.github.dio.mensageria.infra.persistence.entity.PacienteEntity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PacienteEntityMapper {
 
@@ -33,9 +34,39 @@ public class PacienteEntityMapper {
 
     public PacienteEntity atualizarEntity(PacienteEntity entity, Paciente paciente) {
         entity.setNome(paciente.getNome());
-        entity.setContato(contatoToContatoEntity(paciente.getContato()));
-        entity.setConsulta(consultaToConsultaEmbeddable(paciente.getConsulta()));
+
+        ContatoEmbeddable contato = entity.getContato();
+        contato.setBairro(paciente.getContato().getBairro());
+
+        List<NumeroEmbeddable> novosNumeros = paciente.getContato().getNumerosCelular().stream()
+                .map(n -> new NumeroEmbeddable(n.getCelular(), n.isWhatsapp()))
+                .toList();
+
+        boolean numerosMudaram = !mesmosNumeros(contato.getNumerosCelular(), novosNumeros);
+        if (numerosMudaram) {
+            contato.getNumerosCelular().clear();
+            contato.getNumerosCelular().addAll(novosNumeros);
+        }
+
+        ConsultaEmbeddable consulta = entity.getConsulta();
+        consulta.setNome(paciente.getConsulta().getNome());
+        consulta.setDataAtendimento(paciente.getConsulta().getDataAtendimento());
+        consulta.setDataMarcacao(paciente.getConsulta().getDataMarcacao());
+        consulta.setStatus(paciente.getConsulta().getStatus());
+
         return entity;
+    }
+
+    private boolean mesmosNumeros(List<NumeroEmbeddable> atual, List<NumeroEmbeddable> novo) {
+        if (atual.size() != novo.size()) return false;
+        for (int i = 0; i < atual.size(); i++) {
+            NumeroEmbeddable a = atual.get(i);
+            NumeroEmbeddable n = novo.get(i);
+            if (!a.getCelular().equals(n.getCelular()) || a.isWhatsapp() != n.isWhatsapp()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

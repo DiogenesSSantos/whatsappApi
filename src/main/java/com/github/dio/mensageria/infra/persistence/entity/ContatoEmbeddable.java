@@ -28,4 +28,8 @@ public class ContatoEmbeddable {
     public String getBairro() {
         return bairro;
     }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
 }

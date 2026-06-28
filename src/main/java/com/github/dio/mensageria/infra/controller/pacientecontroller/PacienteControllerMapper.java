@@ -49,6 +49,17 @@ public class PacienteControllerMapper {
         return consulta;
     }
 
+    public Consulta consultaDTOToConsultaForUpdate(ConsultaDTORequest consultaDTORequest) {
+        Consulta.Status status = consultaDTORequest.status() != null
+                ? Consulta.Status.valueOf(consultaDTORequest.status().name())
+                : Consulta.Status.MARCADO;
+        return Consulta.deDadosPersistidos(
+                consultaDTORequest.nome(),
+                consultaDTORequest.dataAtendimento(),
+                consultaDTORequest.dataMarcacao(),
+                status);
+    }
+
     public Contato contatoDTOToContatoModel(ContatoDTORequest contatoDTORequest) {
         List<Numero> numerosLista = contatoDTORequest.numerosCelular()
                 .stream()
