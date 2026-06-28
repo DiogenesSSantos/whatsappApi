@@ -6,11 +6,13 @@ import com.github.dio.mensageria.application.usecases.NotificarPaciente;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.request.PacienteDTORequest;
-import com.github.dio.mensageria.infra.controller.pacientecontroller.request.StatusDTORequest;
 import com.github.dio.mensageria.infra.controller.pacientecontroller.response.PacienteDTOResponse;
+import com.github.dio.mensageria.infra.controller.pacientecontroller.response.PaginaResponse;
 import com.github.dio.mensageria.infra.documentation.PacienteControllerSwaggerOpenAPI;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +43,33 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         return ResponseEntity.ok(pacientes);
     }
 
+    @GetMapping("/buscar")
+    @Operation(summary = "Busca pacientes com filtros e paginacao")
+    public ResponseEntity<PaginaResponse<PacienteDTOResponse>> buscarComFiltros(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String bairro,
+            @RequestParam(required = false) String consultaNome,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        var pageable = PageRequest.of(page, size, Sort.by("nome"));
+        var resultado = criarPaciente.buscarComFiltros(nome, bairro, consultaNome, status, pageable);
+
+        var conteudo = resultado.getContent().stream()
+                .map(mapper::modelToDTO)
+                .toList();
+
+        return ResponseEntity.ok(new PaginaResponse<>(
+                conteudo,
+                resultado.getNumber(),
+                resultado.getSize(),
+                resultado.getTotalElements(),
+                resultado.getTotalPages()));
+    }
+
     @GetMapping("/{codigo}")
-    @Operation(summary = "Busca um paciente pelo código")
+    @Operation(summary = "Busca um paciente pelo codigo")
     public ResponseEntity<PacienteDTOResponse> buscarPorCodigo(@PathVariable String codigo) {
         return criarPaciente.buscarPorCodigo(codigo)
                 .map(paciente -> ResponseEntity.ok(mapper.modelToDTO(paciente)))
@@ -50,14 +77,14 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
     }
 
     @PostMapping
-    @Operation(summary = "Cadastra um paciente e enfileira notificação")
+    @Operation(summary = "Cadastra um paciente e enfileira notificacao")
     public ResponseEntity<Map<String, Object>> criarPaciente(@RequestBody PacienteDTORequest pacienteDTORequest) throws Exception {
         Paciente paciente = mapper.dtoToModel(pacienteDTORequest);
         Paciente pacienteSalvoBD = criarPaciente.cadastrarPaciente(paciente);
         notificarPaciente.enfileirar(pacienteSalvoBD);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "mensagem", "Paciente enfileirado para notificação",
+                "mensagem", "Paciente enfileirado para notificacao",
                 "paciente", mapper.modelToDTO(pacienteSalvoBD),
                 "filaTamanho", notificarPaciente.filaTamanho()
         ));
@@ -103,7 +130,7 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
     }
 
     @PostMapping("/lote")
-    @Operation(summary = "Enfileira múltiplos pacientes para notificação sequencial")
+    @Operation(summary = "Enfileira multiplos pacientes para notificacao sequencial")
     public ResponseEntity<Map<String, Object>> criarPacientesEmLote(@RequestBody List<PacienteDTORequest> pacientesDTO) {
         List<Paciente> pacientes = pacientesDTO.stream()
                 .map(mapper::dtoToModel)
@@ -122,7 +149,7 @@ public class PacienteController implements PacienteControllerSwaggerOpenAPI {
         notificarPaciente.enfileirar(pacientesSalvos);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
-                "mensagem", "Pacientes enfileirados para notificação",
+                "mensagem", "Pacientes enfileirados para notificacao",
                 "quantidade", pacientesSalvos.size(),
                 "filaTamanho", notificarPaciente.filaTamanho()
         ));
