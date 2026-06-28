@@ -30,14 +30,14 @@ public interface PacienteEntityRepository extends JpaRepository<PacienteEntity, 
             WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT(:nome, '%')))
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
-            AND (:status IS NULL OR p.consulta.status = :status)
+            AND (:status IS NULL OR p.consulta.status.name() = :status)
             """,
             countQuery = """
             SELECT COUNT(p) FROM PacienteEntity p
             WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT(:nome, '%')))
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT(:bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT(:consultaNome, '%')))
-            AND (:status IS NULL OR p.consulta.status = :status)
+            AND (:status IS NULL OR p.consulta.status.name() = :status)
             """)
     Page<PacienteEntity> buscarComFiltros(
             @Param("nome") String nome,
