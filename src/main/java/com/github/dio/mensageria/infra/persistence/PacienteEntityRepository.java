@@ -24,9 +24,16 @@ public interface PacienteEntityRepository extends JpaRepository<PacienteEntity, 
     @EntityGraph(attributePaths = {"contato.numerosCelular"})
     Optional<PacienteEntity> findByCodigo(String codigo);
 
-    @Query("""
+    @Query(value = """
             SELECT p FROM PacienteEntity p
             LEFT JOIN FETCH p.contato.numerosCelular
+            WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
+            AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT('%', :bairro, '%')))
+            AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT('%', :consultaNome, '%')))
+            AND (:status IS NULL OR p.consulta.status = :status)
+            """,
+            countQuery = """
+            SELECT COUNT(p) FROM PacienteEntity p
             WHERE (:nome IS NULL OR LOWER(p.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
             AND (:bairro IS NULL OR LOWER(p.contato.bairro) LIKE LOWER(CONCAT('%', :bairro, '%')))
             AND (:consultaNome IS NULL OR LOWER(p.consulta.nome) LIKE LOWER(CONCAT('%', :consultaNome, '%')))
