@@ -72,16 +72,6 @@ jobs:
             docker rm backend || true
             docker run -d --name backend --network whatsapp-api_app-network -p 8082:8082 --restart unless-stopped ${{ env.IMAGE_NAME }}:latest
 
-      - name: Discord notification
-        if: always()
-        env:
-          STATUS: ${{ job.status }}
-        run: |
-          if [ "$STATUS" = "success" ]; then COLOR=3066993; else COLOR=15158332; fi
-          curl -s -H "Content-Type: application/json" \
-            -d "{\"embeds\":[{\"title\":\"Backend Deploy (Dev)\",\"description\":\"Status: **'${STATUS}'**\nRun: ${{ github.run_number }}\nCommit: ${{ github.sha }}\",\"color\":${COLOR}}]}" \
-            ${{ secrets.DISCORD_WEBHOOK_URL }}
-
   deploy-prod:
     needs: deploy-dev
     runs-on: ubuntu-latest
@@ -107,13 +97,3 @@ jobs:
             docker stop backend || true
             docker rm backend || true
             docker run -d --name backend --network whatsapp-api_app-network -p 8082:8082 --restart unless-stopped ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
-
-      - name: Discord notification
-        if: always()
-        env:
-          STATUS: ${{ job.status }}
-        run: |
-          if [ "$STATUS" = "success" ]; then COLOR=3066993; else COLOR=15158332; fi
-          curl -s -H "Content-Type: application/json" \
-            -d "{\"embeds\":[{\"title\":\"Backend Deploy (Prod)\",\"description\":\"Status: **'${STATUS}'**\nTag: v${{ github.run_number }}\nCommit: ${{ github.sha }}\",\"color\":${COLOR}}]}" \
-            ${{ secrets.DISCORD_WEBHOOK_URL }}
