@@ -77,9 +77,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root
-            docker compose -f docker-compose.backend.yml pull
-            docker compose -f docker-compose.backend.yml up -d
+            cd /root/whatsapp-api
+            docker compose pull backend
+            docker compose up -d backend
 
   deploy-prod:
     needs: deploy-dev
@@ -102,6 +102,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /root
-            docker compose -f docker-compose.backend.yml pull
-            docker compose -f docker-compose.backend.yml up -d
+            cd /root/whatsapp-api
+            docker compose pull backend
+            docker compose up -d backend
