@@ -79,7 +79,7 @@ jobs:
           script: |
             cd /root/whatsapp-api
             docker compose pull backend
-            docker compose up -d backend
+            docker compose up -d --no-deps --force-recreate backend
 
   deploy-prod:
     needs: deploy-dev
@@ -104,4 +104,4 @@ jobs:
           script: |
             cd /root/whatsapp-api
             docker compose pull backend
-            docker compose up -d backend
+            docker compose up -d --no-deps --force-recreate backend
