@@ -137,7 +137,7 @@ public final class OllamaHttpGateway implements OllamaGateway {
                 .uri(URI.create(ollamaApiUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
-                .timeout(java.time.Duration.ofSeconds(90))   // primeiro pedido pode ser mais lento
+                .timeout(java.time.Duration.ofSeconds(180))
                 .build();
 
         HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
