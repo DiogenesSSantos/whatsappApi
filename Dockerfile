@@ -20,8 +20,8 @@ COPY imagem/LOGO-VITORIA-DEMONSTRA-TEU-VALOR.png /home/diogenes/Imagens/LOGO-VIT
 # copiando os arquivos jar para raiz do imagem
 COPY target/*.jar /api.jar
 
-# expondo na porta 8080
-EXPOSE 8080
+# expondo na porta 8082
+EXPOSE 8082
 
 # Comando para iniciar a aplicação
 CMD ["java", "-jar", "/api.jar"]

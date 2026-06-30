@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [main]
+    branches: [versao_arquitetura_limpa]
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/whatsapp-api
@@ -67,10 +67,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            docker pull ${{ env.IMAGE_NAME }}:latest
-            docker stop backend || true
-            docker rm backend || true
-            docker run -d --name backend --network whatsapp-api_app-network -p 8082:8082 --restart unless-stopped ${{ env.IMAGE_NAME }}:latest
+            cd /root/whatsapp-api
+            docker stop backend 2>/dev/null; docker rm backend 2>/dev/null
+            docker compose pull backend
+            docker compose up -d --no-deps backend
 
   deploy-prod:
     needs: deploy-dev
@@ -93,7 +93,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            docker pull ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
-            docker stop backend || true
-            docker rm backend || true
-            docker run -d --name backend --network whatsapp-api_app-network -p 8082:8082 --restart unless-stopped ${{ env.IMAGE_NAME }}:v${{ github.run_number }}
+            cd /root/whatsapp-api
+            docker stop backend 2>/dev/null; docker rm backend 2>/dev/null
+            docker compose pull backend
+            docker compose up -d --no-deps backend
