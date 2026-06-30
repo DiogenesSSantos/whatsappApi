@@ -8,6 +8,7 @@ import com.github.dio.mensageria.domain.paciente.contato.Contato;
 import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.infra.gateways.MensageriaImplGateway;
 import config.TestcontainersConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @SpringBootTest(classes = Start.class)
 @ContextConfiguration(initializers = TestcontainersConfig.Initializer.class)
+@Disabled("Requires Evolution Go service — run locally only")
 class MensageriaImplGatewayIntegrationTest {
 
     @Autowired
