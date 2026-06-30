@@ -53,8 +53,9 @@ public class ConfigBeans {
     }
 
     @Bean
-    public OllamaGateway ollamaGateway(){
-        return new OllamaHttpGateway();
+    public OllamaGateway ollamaGateway(@Value("${ollama.url}") String ollamaUrl,
+                                       @Value("${ollama.model}") String modelName) {
+        return new OllamaHttpGateway(ollamaUrl, modelName);
     }
 
     @Bean

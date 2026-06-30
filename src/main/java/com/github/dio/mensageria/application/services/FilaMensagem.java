@@ -1,6 +1,7 @@
 package com.github.dio.mensageria.application.services;
 
 import com.github.dio.mensageria.application.gateways.output.Mensageria;
+import com.github.dio.mensageria.domain.mensagem.ResultadoEnvio;
 import com.github.dio.mensageria.domain.paciente.Paciente;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,13 @@ public class FilaMensagem {
             try {
                 Paciente paciente = fila.take();
                 log.info("Processando paciente: {}", paciente.getNome());
-                mensageria.enviar(paciente);
-                log.info("Paciente processado com sucesso: {}", paciente.getNome());
+                ResultadoEnvio resultado = mensageria.enviar(paciente);
+
+                if (resultado instanceof ResultadoEnvio.Sucesso) {
+                    log.info("Paciente processado com sucesso: {}", paciente.getNome());
+                } else if (resultado instanceof ResultadoEnvio.Falha falha) {
+                    log.warn("Falha ao enviar mensagem para {}: {}", paciente.getNome(), falha.motivo());
+                }
 
                 if (!fila.isEmpty() && delayEntrePacientesMs > 0) {
                     log.info("Aguardando {}ms antes do próximo paciente...", delayEntrePacientesMs);

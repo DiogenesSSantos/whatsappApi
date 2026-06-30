@@ -19,12 +19,18 @@ import org.json.JSONObject;
  */
 public final class OllamaHttpGateway implements OllamaGateway {
 
-    // USAMOS O MODELO PERSONALIZADO CRIADO VIA MODLEFILE: phi3-ctx128
-    private static final String OLLAMA_API_URL = "http://localhost:11434/api/generate";
-    private static final String MODEL_NAME = "mistral:7b";
+    private final String ollamaApiUrl;
+    private final String modelName;
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(java.time.Duration.ofSeconds(30))
             .build();
+
+    public OllamaHttpGateway(String ollamaUrl, String modelName) {
+        this.ollamaApiUrl = ollamaUrl.endsWith("/")
+                ? ollamaUrl + "api/generate"
+                : ollamaUrl + "/api/generate";
+        this.modelName = modelName;
+    }
 
 
     @Override
@@ -116,7 +122,7 @@ public final class OllamaHttpGateway implements OllamaGateway {
        4️⃣  CHAMADA AO OLLAMA (mesma estrutura que você já tem)
        -------------------------------------------------------------- */
         JSONObject payload = new JSONObject()
-                .put("model", MODEL_NAME)
+                .put("model", modelName)
                 .put("system", systemPrompt)
                 .put("prompt", userPrompt)
                 .put("stream", false)
@@ -128,7 +134,7 @@ public final class OllamaHttpGateway implements OllamaGateway {
                 ));
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(OLLAMA_API_URL))
+                .uri(URI.create(ollamaApiUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
                 .timeout(java.time.Duration.ofSeconds(90))   // primeiro pedido pode ser mais lento

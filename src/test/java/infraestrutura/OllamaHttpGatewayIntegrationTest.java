@@ -20,10 +20,10 @@ class OllamaHttpGatewayIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.ollamaGateway = new OllamaHttpGateway();
+        this.ollamaGateway = new OllamaHttpGateway("http://localhost:11434", "mistral:7b");
     }
 
-    @RepeatedTest(10)
+    @RepeatedTest(50)
     @DisplayName("Deve gerar variação linguística válida em português preservando dados críticos de saúde")
     void shouldGenerateValidPortugueseVariationPreservingCriticalData() throws Exception {
         List<String> consultas = List.of(
