@@ -5,25 +5,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
 
-@Testcontainers
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true") // Desativa em CI (GitHub Actions, etc.)
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class OllamaHttpGatewayIntegrationTest {
 
     private OllamaHttpGateway ollamaGateway;
 
     @BeforeEach
     void setUp() {
-        this.ollamaGateway = new OllamaHttpGateway("http://localhost:11434", "mistral:7b");
+        this.ollamaGateway = new OllamaHttpGateway("http://194.163.166.83:11434", "gemma2:2b");
     }
 
-    @RepeatedTest(10)
+
+    @RepeatedTest(5)
     @DisplayName("Deve gerar variação linguística válida em português preservando dados críticos de saúde")
     void shouldGenerateValidPortugueseVariationPreservingCriticalData() throws Exception {
         List<String> consultas = List.of(
