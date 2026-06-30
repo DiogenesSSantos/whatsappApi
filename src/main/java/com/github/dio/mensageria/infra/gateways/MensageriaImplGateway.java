@@ -34,7 +34,8 @@ public class MensageriaImplGateway implements Mensageria {
             }
 
         } catch (Exception e) {
-            return new ResultadoEnvio.Falha("Algum motivo no fluxo do envio de mensagem");
+            log.error("Erro ao enviar mensagem para {}: {}", paciente.getNome(), e.getMessage(), e);
+            return new ResultadoEnvio.Falha(e.getMessage());
         }
         return new ResultadoEnvio.Sucesso();
     }
