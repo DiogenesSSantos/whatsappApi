@@ -126,6 +126,7 @@ public final class OllamaHttpGateway implements OllamaGateway {
                 .put("system", systemPrompt)
                 .put("prompt", userPrompt)
                 .put("stream", false)
+                .put("keep_alive", -1)
                 .put("options", Map.of(
                         "temperature", 0.67,
                         "top_p", 0.92,
