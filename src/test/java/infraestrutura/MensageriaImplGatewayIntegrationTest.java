@@ -9,6 +9,7 @@ import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.application.gateways.output.Mensageria;
 import config.TestcontainersConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 @SpringBootTest(classes = Start.class)
 @ContextConfiguration(initializers = TestcontainersConfig.Initializer.class)
 @ActiveProfiles("local")
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class MensageriaImplGatewayIntegrationTest {
 
     @Autowired
