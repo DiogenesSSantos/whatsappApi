@@ -7,10 +7,11 @@ import com.github.dio.mensageria.domain.paciente.consulta.Consulta;
 import com.github.dio.mensageria.domain.paciente.contato.Contato;
 import com.github.dio.mensageria.domain.paciente.contato.Numero;
 import com.github.dio.mensageria.infra.gateways.MensageriaImplGateway;
+import config.TestcontainersConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
@@ -20,7 +21,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 @SpringBootTest(classes = Start.class)
-@ActiveProfiles("local")
+@ContextConfiguration(initializers = TestcontainersConfig.Initializer.class)
 class MensageriaImplGatewayIntegrationTest {
 
     @Autowired
