@@ -64,24 +64,25 @@ public final class OllamaHttpGateway implements OllamaGateway {
             VARIACAO RADICAL (OBRIGATORIO):
             Cada mensagem deve ser UNICA. Para isso:
             1. NUNCA comece com "Ola [nome], sua consulta..." - isso e proibido.
-            2. Aberturas permitidas (varie entre elas):
+            2. NUNCA comece com "Atencao:" - ja e muito usado, evite.
+            3. SEMPRE inclua o nome do paciente na mensagem.
+            4. Aberturas permitidas (varie entre elas):
                - "Bom dia/Boa tarde [nome]"
                - "Prezado(a) [nome]"
                - "Informamos que [nome]..."
                - "[nome], informamos que..."
                - Comece DIRETO: "Sua consulta de [exame]..."
-               - Comece com o PRAZO: "Atencao: o prazo para..."
                - Comece com a DATA: "No dia [data], acontecera..."
                - Comece com o LOCAL: "Na Secretaria de Saude..."
-            3. Varie a ORDEM das informacoes:
+            5. Varie a ORDEM das informacoes:
                - As vezes primeiro o local, depois a data, depois o prazo
                - As vezes primeiro o prazo, depois o local, depois a data
                - As vezes primeiro a data, depois o prazo, depois o local
-            4. Varie os CONECTIVOS:
+            6. Varie os CONECTIVOS:
                - "para retirar" vs "onde podera retirar" vs "a fim de buscar"
                - "Caso contrario" vs "Nao havendo" vs "Se nao retirar"
-            5. Tom formal e profissional. NUNCA emoji, markdown, perguntas ou despedidas.
-            6. OBRIGATORIO: data, prazo, local+horario, aviso de liberacao da vaga.
+            7. Tom formal e profissional. NUNCA emoji, markdown, perguntas ou despedidas.
+            8. OBRIGATORIO: nome do paciente, data, prazo, local+horario, aviso de liberacao.
 
             Retorne SOMENTE a mensagem, sem aspas, sem explicacao.
             """, nomePaciente, nomeConsulta, dataAtendStr, deadlineStr);
@@ -177,6 +178,10 @@ public final class OllamaHttpGateway implements OllamaGateway {
                 .replaceAll("\\*([^*]+)\\*", "$1")
                 .replaceAll("^\\s*Exemplo\\s*\\d+[):.]\\s*", "")
                 .replaceAll("^\\s*\\d+[):.]\\s*", "")
+                .replaceAll("\\[exame\\]", nomeConsulta)
+                .replaceAll("\\[nome\\]", nomePaciente)
+                .replaceAll("\\[data\\]", dataAtendStr)
+                .replaceAll("\\[prazo\\]", deadlineStr)
                 .replaceAll("\\n{2,}", "\n")
                 .trim();
 
