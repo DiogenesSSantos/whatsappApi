@@ -151,41 +151,68 @@ public final class OllamaHttpGateway implements OllamaGateway {
                         "max_tokens", 200
                 ));
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(ollamaApiUrl))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
-                .timeout(java.time.Duration.ofSeconds(180))
-                .build();
+        int maxTentativas = 3;
+        String resposta = null;
 
-        HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        for (int tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(ollamaApiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                    .timeout(java.time.Duration.ofSeconds(180))
+                    .build();
 
-        if (response.statusCode() != 200) {
-            throw new IOException("Ollama API retornou status: " + response.statusCode()
-                    + ". Resposta: " + response.body());
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                if (tentativa == maxTentativas) {
+                    throw new IOException("Ollama API retornou status: " + response.statusCode()
+                            + ". Resposta: " + response.body());
+                }
+                continue;
+            }
+
+            JSONObject jsonResponse = new JSONObject(response.body());
+            if (!jsonResponse.has("response")) {
+                if (tentativa == maxTentativas) {
+                    throw new IOException("Campo 'response' ausente. Resposta: " + response.body());
+                }
+                continue;
+            }
+
+            resposta = jsonResponse.getString("response").trim();
+
+            // Limpeza
+            resposta = resposta
+                    .replaceAll("\\*\\*([^*]+)\\*\\*", "$1")
+                    .replaceAll("\\*([^*]+)\\*", "$1")
+                    .replaceAll("^\\s*Exemplo\\s*\\d+[):.]\\s*", "")
+                    .replaceAll("^\\s*\\d+[):.]\\s*", "")
+                    .replaceAll("\\[exame\\]", nomeConsulta)
+                    .replaceAll("\\[nome\\]", nomePaciente)
+                    .replaceAll("\\[data\\]", dataAtendStr)
+                    .replaceAll("\\[prazo\\]", deadlineStr)
+                    .replaceAll("\\n{2,}", "\n")
+                    .trim();
+
+            if (respostaValida(resposta)) {
+                break;
+            }
         }
-
-        JSONObject jsonResponse = new JSONObject(response.body());
-        if (!jsonResponse.has("response")) {
-            throw new IOException("Campo 'response' ausente. Resposta: " + response.body());
-        }
-
-        String resposta = jsonResponse.getString("response").trim();
-
-        // Limpeza
-        resposta = resposta
-                .replaceAll("\\*\\*([^*]+)\\*\\*", "$1")
-                .replaceAll("\\*([^*]+)\\*", "$1")
-                .replaceAll("^\\s*Exemplo\\s*\\d+[):.]\\s*", "")
-                .replaceAll("^\\s*\\d+[):.]\\s*", "")
-                .replaceAll("\\[exame\\]", nomeConsulta)
-                .replaceAll("\\[nome\\]", nomePaciente)
-                .replaceAll("\\[data\\]", dataAtendStr)
-                .replaceAll("\\[prazo\\]", deadlineStr)
-                .replaceAll("\\n{2,}", "\n")
-                .trim();
 
         return resposta;
+    }
+
+    private boolean respostaValida(String resposta) {
+        if (resposta == null || resposta.isBlank()) return false;
+        if (resposta.contains("DADOS:")) return false;
+        if (resposta.contains("Prazo:")) return false;
+        if (resposta.contains("Local:")) return false;
+        if (resposta.contains("Horário:")) return false;
+        if (resposta.contains("Horario:")) return false;
+        if (resposta.contains("Exemplo")) return false;
+        if (resposta.startsWith("-")) return false;
+        return true;
     }
 
 }
