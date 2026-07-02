@@ -22,7 +22,7 @@ class OllamaHttpGatewayIntegrationTest {
     }
 
 
-    @RepeatedTest(15)
+    @RepeatedTest(50)
     @DisplayName("Deve gerar variação linguística válida em português preservando dados críticos de saúde")
     void shouldGenerateValidPortugueseVariationPreservingCriticalData() throws Exception {
         List<String> consultas = List.of(
