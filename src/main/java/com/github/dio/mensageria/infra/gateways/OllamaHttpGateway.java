@@ -7,15 +7,16 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import org.json.JSONObject;
 
 /**
  * Implementação concreta do OllamaGateway usando Java HttpClient.
- * Responsável apenas por: serialização JSON, chamada HTTP, tratamento de códigos de status.
- * NÃO contém regras de negócio sobre mensagens de saúde.
  */
 public final class OllamaHttpGateway implements OllamaGateway {
 
@@ -32,95 +33,110 @@ public final class OllamaHttpGateway implements OllamaGateway {
         this.modelName = modelName;
     }
 
-
     @Override
     public String gerarVariacaoMensagem(String nomePaciente, String nomeConsulta, LocalDateTime dataAtendimento)
             throws Exception {
-        String systemPrompt = """
-            Você é um assistente especializado em gerar variações de notificação de saúde
-            para o município de Vitória de Santo Antão.
 
-            REGRAS RIGOROSAS (NUNCA VIOLAR):
-            1. NUNCA altere:
-               • o nome do paciente [%s]
-               • o tipo exato de consulta/exame [%s]
-               • a localização fixa: "Secretaria de Saúde do município de Vitória de Santo Antão, setor de regulação"
-               • o horário de atendimento: "das 08:00 às 14:00" (ou equivalente, ex: "entre 08:00 e 14:00")
-            2. NUNCA adicione: perguntas, ofertas de agendamento, múltiplas saudações,
-               informações extras, despedidas ou qualquer texto que não esteja no modelo base.
-            3. SEMPRE mantenha: UMA ÚNICA saudação variada no início (ex: "Bom dia",
-               "Prezado Sr.", "Olá", "Prezado(a)"), o objetivo de retirar o comprovante,
-               e o tom respeitoso/formal.
-            4. SEMPRE retorne APENAS a mensagem reescrita, sem aspas, comentários ou
-               explicações adicionais.
-            Se houver ANY dúvida sobre o que pode ser alterado, RETORNE A MENSAGEM
-            ORIGINAL EXATAMENTE FORNECIDA.
-            """;
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dataAtendStr = dataAtendimento.format(fmt);
 
-    /* --------------------------------------------------------------
-       2️⃣  MENSAGEM BASE – contém exatamente os dados que devem ser preservados
-       -------------------------------------------------------------- */
+        LocalDate deadline = dataAtendimento.toLocalDate();
+        int uteis = 0;
+        while (uteis < 3) {
+            deadline = deadline.minusDays(1);
+            if (deadline.getDayOfWeek() != DayOfWeek.SATURDAY && deadline.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                uteis++;
+            }
+        }
+        String deadlineStr = deadline.format(fmt);
+
+        String systemPrompt = String.format("""
+            Voce e um funcionario de saude. Escreva UMA mensagem de WhatsApp.
+
+            DADOS (jamais altere):
+            - Paciente: %s
+            - Exame/Consulta: %s
+            - Data do atendimento: %s
+            - Prazo para retirar encaminhamento: ate %s (3 dias uteis antes)
+            - Local: Secretaria de Saude do municipio de Vitoria de Santo Antao, setor de regulacao
+            - Horario: 08:00 as 14:00
+
+            VARIACAO RADICAL (OBRIGATORIO):
+            Cada mensagem deve ser UNICA. Para isso:
+            1. NUNCA comece com "Ola [nome], sua consulta..." - isso e proibido.
+            2. Aberturas permitidas (varie entre elas):
+               - "Bom dia/Boa tarde [nome]"
+               - "Prezado(a) [nome]"
+               - "Informamos que [nome]..."
+               - "[nome], informamos que..."
+               - Comece DIRETO: "Sua consulta de [exame]..."
+               - Comece com o PRAZO: "Atencao: o prazo para..."
+               - Comece com a DATA: "No dia [data], acontecera..."
+               - Comece com o LOCAL: "Na Secretaria de Saude..."
+            3. Varie a ORDEM das informacoes:
+               - As vezes primeiro o local, depois a data, depois o prazo
+               - As vezes primeiro o prazo, depois o local, depois a data
+               - As vezes primeiro a data, depois o prazo, depois o local
+            4. Varie os CONECTIVOS:
+               - "para retirar" vs "onde podera retirar" vs "a fim de buscar"
+               - "Caso contrario" vs "Nao havendo" vs "Se nao retirar"
+            5. Tom formal e profissional. NUNCA emoji, markdown, perguntas ou despedidas.
+            6. OBRIGATORIO: data, prazo, local+horario, aviso de liberacao da vaga.
+
+            Retorne SOMENTE a mensagem, sem aspas, sem explicacao.
+            """, nomePaciente, nomeConsulta, dataAtendStr, deadlineStr);
+
         String exemploBase = String.format(
-                "Olá %s, sua consulta/exame (%s) já está agendado. " +
-                        "Compareça à Secretaria de Saúde do município de Vitória de Santo Antão, " +
-                        "setor de regulação, para retirar o comprovante das 08:00 às 14:00.",
-                nomePaciente, nomeConsulta);
+                "Ola %s, sua consulta/exame (%s) esta agendada para o dia %s. "
+                + "Compareca a Secretaria de Saude do municipio de Vitoria de Santo Antao, "
+                + "setor de regulacao, para retirar o comprovante e o encaminhamento das 08:00 as 14:00. "
+                + "IMPORTANTE: o prazo para retirada e ate %s (3 dias uteis). "
+                + "Caso contrario, a vaga sera disponibilizada para outro paciente.",
+                nomePaciente, nomeConsulta, dataAtendStr, deadlineStr);
 
-    /* --------------------------------------------------------------
-       3️⃣  USER PROMPT – few‑shot com exemplos SÓ VÁLIDOS
-       -------------------------------------------------------------- */
         String userPrompt = String.format("""
-    REESCREVA a mensagem abaixo **APENAS** variando a saudação e a estrutura da frase.
-    NÃO MODIFIQUE NADA ALÉM DO QUE ESTÁ ENTRE COLCHETES [ ... ].
+            REESCREVA esta mensagem de forma radicalmente diferente:
+            "%s"
 
-    MENSAGEM BASE (NÃO ALTERE OS DADOS ENTRE COLCHETES):
-    "%s"
+            DADOS:
+            - Data: %s | Prazo: ate %s (3 dias uteis antes)
+            - Local: Secretaria de Saude de Vitoria de Santo Antao, setor de regulacao
+            - Horario: 08:00 as 14:00
 
-    EXEMPLOS DE REESCRITA CORRETA (siga exatamente este padrão):
-    - "Prezado Sr. %s, informamos que seu exame de %s está agendado. "
-      + "Favor comparecer à Secretaria de Saúde do município de Vitória de Santo Antão, "
-      + "setor de regulação, entre 08:00 e 14:00 para retirar o comprovante."
-    - "%s, sua consulta de %s foi confirmada; "
-      + "dirija‑se ao setor de regulação da Secretaria de Saúde de Vitória de Santo Antão "
-      + "das 08:00 às 14:00 para obter o comprovante."
-    - "Bom dia, %s. O comprovante do seu exame de %s pode ser retirado "
-      + "na Secretaria de Saúde do município de Vitória de Santo Antão, "
-      + "setor de regulação, no horário das 08:00 às 14:00."
-    - "Olá, %s! Lembre‑se de comparecer à Secretaria de Saúde do município "
-      + "de Vitória de Santo Antão, setor de regulação, das 08:00 até as 14:00 "
-      + "para retirar o comprovante do seu %s."
-    - "%s, comunico que a realização do seu %s está agendada. "
-      + "Compareça ao setor de regulação da Secretaria de Saúde "
-      + "de Vitória de Santo Antão, entre 08:00 e 14:00, e retire o comprovante."
+            MODELOS (NUNCA copie a estrutura, invente outra):
+            "Bom dia %%s. Informamos que %%s, portador(a) de %%s, devera comparecer
+            %%s a Secretaria de Saude de Vitoria de Santo Antao, setor de regulacao,
+            no horario das 08h as 14h. Retire comprovante e encaminhamento ate %%s.
+            Caso contrario, a vaga sera disponibilizada."
 
-    LEMBRE‑SE:
-    • NÃO troque [%s] (nome do paciente) nem [%s] (tipo de consulta/exame).
-    • NÃO altere a frase exata
-      "Secretaria de Saúde do município de Vitória de Santo Antão, setor de regulação".
-    • NÃO altere o horário – ele deve aparecer como "08:00 às 14:00"
-      (ou qualquer variação que represente o mesmo intervalo, ex: "8h às 14h").
-    • Use APENAS UMA saudação no início da mensagem.
-    • Mantenha o objetivo: retirar o comprovante no local e horário especificados.
-    • Se não tiver certeza de que a variação está dentro das regras,
-      RETORNE A MENSAGEM BASE EXATAMENTE.
+            "%%s, sua consulta de %%s acontecera em %%s. Compareca ao setor de
+            regulacao da Secretaria de Saude de Vitoria de Santo Antao das 08:00
+            as 14:00 para retirar comprovante e encaminhamento. Prazo: ate %%s.
+            Se nao retirar, a vaga sera cedida a outro paciente."
 
-    RESPOSTA OBRIGATÓRIA: Apenas a mensagem reescrita, nada mais.
-    """,
-                // argumentos (agora com 13 itens)
-                exemploBase,
-                nomePaciente, nomeConsulta,
-                nomePaciente, nomeConsulta,
-                nomePaciente, nomeConsulta,
-                nomePaciente, nomeConsulta,
-                nomePaciente, nomeConsulta,
-                // argumentos para os [%s] finais
-                nomePaciente, nomeConsulta
+            "Atencao: o prazo para retirar o encaminhamento de %%s e ate %%s.
+            A consulta acontecera em %%s. Compareca a Secretaria de Saude de
+            Vitoria de Santo Antao, setor de regulacao, das 08:00 as 14:00.
+            Nao havendo retirada, a vaga sera liberada para outro(a) paciente."
+
+            "%%s, sua consulta de %%s esta confirmada para %%s. Retire comprovante
+            e encaminhamento na Secretaria de Saude (Vitoria de Santo Antao, setor
+            de regulacao), das 08:00 as 14:00. IMPORTANTE: o prazo para retirada
+            e ate %%s. Caso nao retire, a vaga sera liberada."
+
+            REGRAS:
+            - NAO copie a estrutura dos modelos acima.
+            - NAO use emoji, markdown ou cabecalhos.
+            - Varie ordem, palavras e conectivos.
+            - Retorne SOMENTE a mensagem, sem aspas.
+            """,
+            exemploBase,
+            nomePaciente, nomeConsulta, dataAtendStr, deadlineStr,
+            nomePaciente, nomeConsulta, dataAtendStr, deadlineStr,
+            nomePaciente, nomeConsulta, dataAtendStr, deadlineStr,
+            nomePaciente, nomeConsulta, dataAtendStr, deadlineStr
         );
 
-
-    /* --------------------------------------------------------------
-       4️⃣  CHAMADA AO OLLAMA (mesma estrutura que você já tem)
-       -------------------------------------------------------------- */
         JSONObject payload = new JSONObject()
                 .put("model", modelName)
                 .put("system", systemPrompt)
@@ -128,10 +144,10 @@ public final class OllamaHttpGateway implements OllamaGateway {
                 .put("stream", false)
                 .put("keep_alive", -1)
                 .put("options", Map.of(
-                        "temperature", 0.67,
-                        "top_p", 0.92,
-                        "repeat_penalty", 1.15,
-                        "max_tokens", 120
+                        "temperature", 0.95,
+                        "top_p", 0.95,
+                        "repeat_penalty", 1.0,
+                        "max_tokens", 200
                 ));
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -144,18 +160,25 @@ public final class OllamaHttpGateway implements OllamaGateway {
         HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            throw new IOException("Ollama API retornou status não‑200: " + response.statusCode()
+            throw new IOException("Ollama API retornou status: " + response.statusCode()
                     + ". Resposta: " + response.body());
         }
 
         JSONObject jsonResponse = new JSONObject(response.body());
         if (!jsonResponse.has("response")) {
-            throw new IOException("Resposta do Ollama inválida: campo 'response' ausente. "
-                    + "Resposta completa: " + response.body());
+            throw new IOException("Campo 'response' ausente. Resposta: " + response.body());
         }
 
         String resposta = jsonResponse.getString("response").trim();
 
+        // Limpeza
+        resposta = resposta
+                .replaceAll("\\*\\*([^*]+)\\*\\*", "$1")
+                .replaceAll("\\*([^*]+)\\*", "$1")
+                .replaceAll("^\\s*Exemplo\\s*\\d+[):.]\\s*", "")
+                .replaceAll("^\\s*\\d+[):.]\\s*", "")
+                .replaceAll("\\n{2,}", "\n")
+                .trim();
 
         return resposta;
     }
